@@ -157,37 +157,38 @@ export default function ChatPage() {
         <Box h='calc(100vh - 160px)' bg='white' p='5' pt='0' overflowY="scroll">
 
           {sortMessagesByDate.map((messagesByDate, i) => (
-            <><Center className="chatDate">
-              <Box pl='3' pr='3' pt='1' pb='1' mt='3' borderRadius='15' bg='#ECECEC'><Text fontSize='sm' color='#5A5A5A'>{messagesByDate["date"]}</Text></Box>
-            </Center>
-            {messagesByDate["messages"].map((message) => (
-              message.type == 0 ?
-              <Flex pt='5' className="receiveMsg">
-                <Avatar className="scammerAvatar" mr='5' src='https://bit.ly/dan-abramov' />
-                <Box bg='#F2F2F7' p='3' w='300px' borderRadius='5'>
-                  <Text>
-                    {message.message}
-                  </Text>
-                  <Flex pt='1'>
-                    <Spacer />
-                    <Text fontSize='xs'>{message.timestamp}</Text>
-                  </Flex>
-                </Box>
-              </Flex> : 
-              <Flex pt='5' className="sendMsg">
-                <Spacer/>
-                <Box bg='#007AFF' p='3' w='300px' borderRadius='5'>
-                  <Text color="white">
-                    {message.message}
-                  </Text>
-                  <Flex pt='1'>
-                    <Spacer />
-                    <Text fontSize='xs' color='white'>{message.timestamp}</Text>
-                  </Flex>
-                </Box>
-                <Avatar className="userAvatar" ml='5' src='https://bit.ly/ryan-florence' />
-              </Flex>
-            ))}
+            <>
+              <Center className="chatDate">
+                <Box pl='3' pr='3' pt='1' pb='1' mt='3' borderRadius='15' bg='#ECECEC'><Text fontSize='sm' color='#5A5A5A'>{messagesByDate["date"]}</Text></Box>
+              </Center>
+              {messagesByDate["messages"].map((message) => (
+                message.type == 0 ?
+                <Flex pt='5' className="receiveMsg">
+                  <Avatar className="scammerAvatar" mr='5' src='https://bit.ly/dan-abramov' />
+                  <Box bg='#F2F2F7' p='3' w='300px' borderRadius='10'>
+                    <Text>
+                      {message.message}
+                    </Text>
+                    <Flex pt='1'>
+                      <Spacer />
+                      <Text fontSize='xs'>{message.timestamp}</Text>
+                    </Flex>
+                  </Box>
+                </Flex> : 
+                <Flex pt='5' className="sendMsg">
+                  <Spacer/>
+                  <Box bg='#007AFF' p='3' w='300px' borderRadius='10'>
+                    <Text color="white">
+                      {message.message}
+                    </Text>
+                    <Flex pt='1'>
+                      <Spacer />
+                      <Text fontSize='xs' color='white'>{message.timestamp}</Text>
+                    </Flex>
+                  </Box>
+                  <Avatar className="userAvatar" ml='5' src='https://bit.ly/ryan-florence' />
+                </Flex>
+              ))}
             </>
           ))}
         </Box>
