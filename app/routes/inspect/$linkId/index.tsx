@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Flex,
   Spacer,
   Tab,
@@ -12,6 +13,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import {
+  getDom,
   getInspectedLink,
   getReport,
   getScreenshot,
@@ -25,15 +27,17 @@ import Information from "./Information";
 import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
+import DomAnalysis from "./DOMAnalysis";
 
 export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
 
   invariant(params.linkId, `params.linkId is required`);
-  var screenshot,
+  var dom,
+    screenshot,
     inspectedLink: InspectedLink | null = null,
     inspectionReport;
-  var screenshotErr, inspectedLinkErr, inspectionReportErr;
+  var domErr, screenshotErr, inspectedLinkErr, inspectionReportErr;
 
   try {
     inspectedLink = (await getInspectedLink(params.linkId)) as InspectedLink;
@@ -45,6 +49,11 @@ export const loader = async ({ params }: LoaderArgs) => {
     screenshot = await getScreenshot(decodeURIComponent(params.linkId));
   } catch (error) {
     screenshotErr = error;
+  }
+  try {
+    dom = await getDom(decodeURIComponent(params.linkId));
+  } catch (error) {
+    domErr = error;
   }
 
   if (inspectedLink && inspectedLink.status === "processed") {
@@ -62,6 +71,8 @@ export const loader = async ({ params }: LoaderArgs) => {
       inspectionReportErr,
       screenshot,
       screenshotErr,
+      dom,
+      domErr,
     });
   }
   const pipeline = [
@@ -96,6 +107,8 @@ export const loader = async ({ params }: LoaderArgs) => {
     inspectionReportErr,
     screenshot,
     screenshotErr,
+    dom,
+    domErr,
   });
 };
 
@@ -110,22 +123,25 @@ export default function InspectSlug() {
     inspectionReportErr,
     screenshot,
     screenshotErr,
+    dom,
+    domErr,
   } = useLoaderData<typeof loader>();
   console.log(screenshot, screenshotErr);
   return (
     <Box>
       <Nav />
       <Container maxW="container.lg" mt={8}>
-        <Flex my={8}>
+        <Flex my={8} >
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
           <Button h="2rem">Report</Button>
         </Flex>
-        <Flex>
+        <Flex minWidth='max-content'>
           <Information
             inspectedLink={inspectedLink}
             inspectedLinkErr={inspectedLinkErr}
           />
+          <Divider orientation='vertical' mx={8}/>
           <Screenshot screenshot={screenshot} screenshotErr={screenshotErr} />
         </Flex>
 
@@ -143,7 +159,7 @@ export default function InspectSlug() {
               />
             </TabPanel>
             <TabPanel>
-              <p>two!</p>
+              <DomAnalysis dom={dom} domErr={domErr} />
             </TabPanel>
           </TabPanels>
         </Tabs>

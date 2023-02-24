@@ -5,10 +5,11 @@ import AWS from "aws-sdk";
 AWS.config.update({
   accessKeyId: process.env.AWS_PUBLIC_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
-  region:"us-east-1"
+  region: "us-east-1",
 });
-export const inspectLink = (link: string) => {
-  return fetch(`${process.env.LINK_INSPECTION_BACKEND}/api/linkinspect`, {
+export const inspectLink = async (link: string) => {
+  console.log(link)
+  return await fetch(`${process.env.LINK_INSPECTION_BACKEND}/api/linkinspect`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -16,7 +17,10 @@ export const inspectLink = (link: string) => {
     },
     body: JSON.stringify({ inspectURL: link }),
   })
-    .then((response) => response.json())
+    .then((response) => {
+      console.log(response)
+      return response.json();
+    })
     .then((data) => data)
     .catch((err) => console.error(err));
 };
@@ -28,12 +32,14 @@ export const getInspectedLink = async (encodedLink: string) => {
 };
 
 export const getReport = async (reportName: string) => {
-  const url = await handleDownload(process.env.S3_REPORT_BUCKET!, reportName.split("/").pop()!);
-  if(url.length === 0){
-    return
+  const url = await handleDownload(
+    process.env.S3_REPORT_BUCKET!,
+    reportName.split("/").pop()!
+  );
+  if (url.length === 0) {
+    return;
   }
-  return await fetch(url)
-    .then(r => r.text())
+  return await fetch(url).then((r) => r.text());
 };
 
 const getLinkStatus = (decodedLink: string) => {
@@ -41,6 +47,11 @@ const getLinkStatus = (decodedLink: string) => {
   return collections.inspectedLinks?.findOne(query) as unknown as InspectedLink;
 };
 
+export const getDom = async (processedUrl: String) => {
+  return await fetch(
+    `${process.env.SCREENSHOT_BACKEND}/scrape?url=${processedUrl}`
+  ).then((res) => res.json());
+};
 export const getScreenshot = async (processedUrl: String) => {
   const filename = await fetch(
     `${process.env.SCREENSHOT_BACKEND}/screenshot?url=${processedUrl}`
@@ -51,9 +62,8 @@ export const getScreenshot = async (processedUrl: String) => {
 };
 
 const handleDownload = (bucket: string, key: string) => {
-  console.log(bucket,key)
-  if(key.length==0)
-    return ""
+  console.log(bucket, key);
+  if (key.length == 0) return "";
   const s3 = new AWS.S3();
 
   const signedUrlExpireSeconds = 60 * 5;

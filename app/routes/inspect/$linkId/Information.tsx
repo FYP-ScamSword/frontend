@@ -22,7 +22,6 @@ export default function Information({
   inspectedLinkErr,
 }: InformationProps) {
   return (
-    <Box borderWidth="1px" borderRadius="lg">
       <Box p="6">
         <Text>Information</Text>
         {inspectedLinkErr ? (
@@ -105,6 +104,5 @@ export default function Information({
           </TableContainer>
         )}
       </Box>
-    </Box>
   );
 }

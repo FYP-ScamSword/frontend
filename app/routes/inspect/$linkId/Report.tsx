@@ -1,4 +1,4 @@
-import { Box, Code, Text } from "@chakra-ui/react";
+import { Box,  Text } from "@chakra-ui/react";
 
 type Props = { inspectionReport?: string; inspectionReportErr: any };
 export default function InspectReport({
@@ -6,8 +6,8 @@ export default function InspectReport({
   inspectionReportErr,
 }: Props) {
   return (
-    <Box borderWidth="1px" borderRadius="lg">
-      <Box p="6" overflow="scroll">
+    <Box borderWidth="1px" borderRadius="lg" bg="black" color="white">
+      <Box p="6" overflow="scroll" maxH="40vh">
         {inspectionReportErr ? (
           <Text color="red">
             Error retrieving inspection report{" "}
