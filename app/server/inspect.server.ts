@@ -28,16 +28,12 @@ export const getInspectedLink = async (encodedLink: string) => {
 };
 
 export const getReport = async (reportName: string) => {
-  const url = await handleDownload(process.env.S3_REPORT_BUCKET!, reportName);
+  const url = await handleDownload(process.env.S3_REPORT_BUCKET!, reportName.split("/").pop()!);
   if(url.length === 0){
     return
   }
   return await fetch(url)
-    .then(r => {
-      console.log(r)
-      return r.text();
-    })
-    .then(text => console.log(text));
+    .then(r => r.text())
 };
 
 const getLinkStatus = (decodedLink: string) => {
@@ -55,6 +51,7 @@ export const getScreenshot = async (processedUrl: String) => {
 };
 
 const handleDownload = (bucket: string, key: string) => {
+  console.log(bucket,key)
   if(key.length==0)
     return ""
   const s3 = new AWS.S3();

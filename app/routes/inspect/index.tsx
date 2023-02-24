@@ -2,7 +2,7 @@ import { Box,Container } from "@chakra-ui/react";
 import RecentReports from "~/components/inspect/RecentReports";
 import LandingForm from "~/components/inspect/LandingForm";
 import Nav from "~/shared/nav";
-import { ActionFunction, redirect } from "@remix-run/server-runtime";
+import { type ActionFunction, redirect } from "@remix-run/server-runtime";
 import { inspectLink } from "~/server/inspect.server";
 
 export const action: ActionFunction = async ({ request }) => {
@@ -19,8 +19,8 @@ export const action: ActionFunction = async ({ request }) => {
     };
   }
 
-  const res = await inspectLink(link as string);
-  return redirect(`/inspect/details/${encodeURIComponent(link as string)}`);
+  await inspectLink(link as string);
+  return redirect(`/inspect/${encodeURIComponent(link as string)}`);
 };
 export default function Inspect() {
   return (
