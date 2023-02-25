@@ -8,9 +8,11 @@ import {
   Td,
   Text,
   Tr,
+  Tooltip,
 } from "@chakra-ui/react";
 
 import InspectedLink from "~/server/models/InspectedLink";
+import { combolevelsquattingTooltip, dgaTooltip, domainAgeTooltip, homographsquattingTooltip, keywordBlacklistTooltip, redirectionTooltip, registrationperiodTooltip, safebrowsingTooltip, substringTooltip, typobitsquattingTooltip, webriskTooltip } from "./TooltipStrings";
 
 interface InformationProps {
   inspectedLink: InspectedLink;
@@ -54,41 +56,63 @@ export default function Information({
                   <Text>{inspectedLink!.to_flag && "THIS SITE LEGIT!!!"}</Text>
                   {!inspectedLink!.to_flag && (
                     <div>
-                      <Text>
-                        {inspectedLink!.combolevelsquatting_flag &&
-                          "Combolevelsquatting"}
-                      </Text>
-                      <Text>{inspectedLink!.dga_flag && "DGA"}</Text>
-                      <Text>
-                        {inspectedLink!.redirections_flag && "Redirections"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.domain_age_flag && "Domain Age"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.registration_period_flag &&
-                          "Registration Period"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.safe_browsing_flag && "Safe Browsing"}
-                      </Text>
-                      <Text>{inspectedLink!.web_risk_flag && "Web Risk"}</Text>
-                      <Text>
-                        {inspectedLink!.subdomain_len_flag &&
-                          "Subdomain Length"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.blacklisted_keyword_flag &&
-                          "Blacklist Keyword"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.homographsquatting_flag &&
-                          "Homographsquatting"}
-                      </Text>
-                      <Text>
-                        {inspectedLink!.typobitsquatting_flag &&
-                          "Typobitsquatting"}
-                      </Text>
+                      <Tooltip hasArrow placement='right' label={combolevelsquattingTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.combolevelsquatting_flag &&
+                            "Combolevelsquatting"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={dgaTooltip} aria-label='A tooltip'>
+                        <Text>{inspectedLink!.dga_flag && "DGA"}</Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={redirectionTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.redirections_flag && "Redirections"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={domainAgeTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.domain_age_flag && "Domain Age"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={registrationperiodTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.registration_period_flag &&
+                            "Registration Period"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={safebrowsingTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.safe_browsing_flag && "Safe Browsing"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={webriskTooltip} aria-label='A tooltip'>
+                        <Text>{inspectedLink!.web_risk_flag && "Web Risk"}</Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={substringTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.subdomain_len_flag &&
+                            "Subdomain Length"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={keywordBlacklistTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.blacklisted_keyword_flag &&
+                            "Blacklist Keyword"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={homographsquattingTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.homographsquatting_flag &&
+                            "Homographsquatting"}
+                        </Text>
+                      </Tooltip>
+                      <Tooltip hasArrow placement='right' label={typobitsquattingTooltip} aria-label='A tooltip'>
+                        <Text>
+                          {inspectedLink!.typobitsquatting_flag &&
+                            "Typobitsquatting"}
+                        </Text>
+                      </Tooltip>
                     </div>
                   )}
                 </Td>
