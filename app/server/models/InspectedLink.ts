@@ -8,7 +8,7 @@ export default class InspectedLink {
     public domain_age: Number,
     public flag_points: Number,
     public registrar_abuse_contact: string,
-    public toFlag: Boolean,
+    public to_flag: Boolean,
     public num_flags: Number,
     public registration_period: Number,
     public dga_flag: Boolean,
