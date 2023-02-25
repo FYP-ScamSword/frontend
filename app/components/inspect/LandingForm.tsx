@@ -12,24 +12,29 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import image from "~/assets/certified.webp";
-import { Form } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
+
 
 export default function LandingForm() {
+  const data = useActionData();
+  // using errors as convention to return all the form errors
+  const errors = data?.errors;
   const [link, setLink] = useState("");
   return (
     <Flex alignItems="center">
       <Box maxW="md">
         <Heading as="h1" mb={8}>
-          Inspect Link{" "}
+          Inspect Link
         </Heading>
         <Text>
           Verify any suspicious link before providing your credentials
         </Text>
-        <Form action={`/inspect/${encodeURIComponent(link)}`}>
+        <Form method="post" action="/inspect">
           <InputGroup size="lg" mt={8}>
             <Input
               type="url"
               pr="7rem"
+              name="link"
               placeholder="Enter link"
               value={link}
               onChange={(e) => setLink(e.target.value)}
@@ -40,6 +45,9 @@ export default function LandingForm() {
               </Button>
             </InputRightElement>
           </InputGroup>
+          {errors?.title ? (
+            <Text>{errors.title}</Text>
+          ) : null}
         </Form>
       </Box>
       <Spacer />
