@@ -8,31 +8,21 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  password Password?
-  notes    Note[]
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
 }
 
-model Password {
-  hash String
+// model InspectedLink {
+//   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
-}
-
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
-}
+//   processed_url String
+//   original_url String
+//   status String
+//   report String
+//   image String
+//   domain_age Int
+//   flag_points Int
+//   createdAt DateTime
+//   updatedAt DateTime 
+// }
