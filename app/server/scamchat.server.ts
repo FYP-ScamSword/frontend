@@ -1,10 +1,11 @@
-import Chat from "./models/Chat";
-import Message from "./models/Message";
-import { scamChatCollections } from "./mongodb/conn";
+export const retrieveChats = async (phone_num: string) => {
+  return await fetch(
+    `${process.env.SCAMCHAT_BACKEND}/chat/get_chats/${phone_num}`
+  ).then((res) => res.json());
+};
 
-export const retrieveContacts = async () => {
-  console.log("called")
-  const contacts = (await scamChatCollections.chats?.find({}).toArray()) as unknown as Chat[];
-
-  return contacts;
+export const retrieveMessages = async (phone_num: string, chat_id: string) => {
+  return await fetch(
+    `${process.env.SCAMCHAT_BACKEND}/msg/get_msgs/${phone_num}/${chat_id}`
+  ).then((res) => res.json());
 };
