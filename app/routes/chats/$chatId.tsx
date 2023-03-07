@@ -3,18 +3,19 @@ import {
   Flex,
   Text,
   Heading,
-  Button,
   Spacer,
-  SimpleGrid,
   Center,
-  Grid,
-  GridItem,
   Avatar,
   Input,
   InputGroup,
-  InputRightElement,
+  InputLeftAddon,
+  InputRightAddon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import { useLoaderData } from "@remix-run/react";
 import Message from "~/server/models/Message";
 import MessageGroup from "~/server/models/MessageGroup";
@@ -149,6 +150,20 @@ export default function ChatDetail() {
       {/* input area */}
       <Box h="40px">
         <InputGroup h="100%">
+          <Menu>
+            <MenuButton as={InputLeftAddon} _hover={{ bg: "#D7E5F0" }} id="suggestionsBtn"><QuestionOutlineIcon /></MenuButton>
+            <MenuList>
+              <MenuItem>
+                <Box w='100%' mt='2' mb='2'>woohoo</Box>
+              </MenuItem>
+              <MenuItem>
+                <Box w='100%' mt='2' mb='2'>yayyy</Box>
+              </MenuItem>
+              <MenuItem>
+                <Box w='100%' mt='2' mb='2'>gimme money, my paynow is xxxx xxxx</Box>
+              </MenuItem>
+            </MenuList>
+          </Menu>
           <Input
             h="100%"
             id="msgInput"
@@ -158,11 +173,9 @@ export default function ChatDetail() {
             borderRight="0px"
             borderLeft="0px"
           />
-          <InputRightElement>
-            <Button bg="#F2F2F4" id="sendBtn" borderRadius="0px">
-              <ArrowForwardIcon />
-            </Button>
-          </InputRightElement>
+          <InputRightAddon bg="#F2F2F4" id="sendBtn" borderRadius="0px" _hover={{ bg: "#D7E5F0" }} >
+            <ArrowForwardIcon />
+          </InputRightAddon>
         </InputGroup>
       </Box>
     </div>
