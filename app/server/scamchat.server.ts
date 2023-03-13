@@ -6,6 +6,6 @@ export const retrieveChats = async (phone_num: string) => {
 
 export const retrieveMessages = async (phone_num: string, chat_id: string) => {
   return await fetch(
-    `${process.env.SCAMCHAT_BACKEND}/msg/get_msgs/${phone_num}/${chat_id}`
+    `${process.env.SCAMCHAT_BACKEND}/msg/bychatID/${phone_num}/${chat_id}`
   ).then((res) => res.json());
 };

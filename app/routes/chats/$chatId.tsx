@@ -5,10 +5,7 @@ import {
   Heading,
   Button,
   Spacer,
-  SimpleGrid,
   Center,
-  Grid,
-  GridItem,
   Avatar,
   Input,
   InputGroup,
@@ -19,7 +16,7 @@ import { useLoaderData } from "@remix-run/react";
 import Message from "~/server/models/Message";
 import MessageGroup from "~/server/models/MessageGroup";
 import { retrieveMessages } from "~/server/scamchat.server";
-import { json, LoaderArgs } from "@remix-run/node";
+import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 
 export const loader = async ({ params }: LoaderArgs) => {
@@ -27,21 +24,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 
   let messagesGroup: MessageGroup[] = [];
   let messagesGroupError;
-  messagesGroup = [
-    new MessageGroup(
-      "+6512345566",
-      params.chatId,
-      "gello",
-      "akjsd",
-      "sda",
-      "25/2/2023",
-      [
-        new Message("aaa", "ooo", 0, "11:47 AM"),
-        new Message("aaaa", "ooo", 1, "11:47 AM"),
-      ]
-    ),
-  ];
-  return json({ messagesGroup, messagesGroupError });
   try {
     messagesGroup = await retrieveMessages("+6596719465", params.chatId);
   } catch (error) {
@@ -54,43 +36,18 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 export default function ChatDetail() {
   const { messagesGroup, messagesGroupError } = useLoaderData<typeof loader>();
-  console.log(messagesGroup);
-
-  // contacts.forEach((contact) => {
-  //   let limit = 6;
-
-  //   let messagesLength = contact["messages"].length;
-  //   contact["preview"] = contact["messages"][messagesLength - 1].message.slice(
-  //     0,
-  //     limit
-  //   );
-  //   if (contact["messages"][messagesLength - 1].message.length > limit) {
-  //     contact["preview"] = contact["preview"] + "...";
-  //   }
-  // });
-
-  // let messageDateDict = messages.reduce(function (r, a) {
-  //   r[a.date] = r[a.date] || [];
-  //   r[a.date].push(a);
-  //   return r;
-  // }, Object.create(null));
-
-  // const sortMessagesByDate: Chat[] = [];
-
-  // Object.keys(messageDateDict).forEach((date) => {
-  //   sortMessagesByDate.push({ date: date, messages: messageDateDict[date] });
-  // });
-
   return (
     <div>
-      <Box h="60px" borderBottom="1px" borderBottomColor="gray.200">
-        <Center h="60px">
-          <Heading fontSize="lg">scammer-san dame desu</Heading>
-        </Center>
-      </Box>
       <Box h="calc(100vh - 160px)" bg="white" p="5" pt="0" overflowY="scroll">
+            <Box h="60px" borderBottom="1px" borderBottomColor="gray.200">
+              <Center h="60px">
+                <Heading fontSize="lg">
+                  {messagesGroup[0]? messagesGroup[0].users.find((firstname:any)=>firstname.type===0)?.firstname:""}
+                </Heading>
+              </Center>
+            </Box>
         {messagesGroup.map((messageGroup, i) => (
-          <>
+          <div key={messageGroup.chat_id+messageGroup.date}>
             <Center className="chatDate">
               <Box
                 pl="3"
@@ -142,7 +99,7 @@ export default function ChatDetail() {
                 </Flex>
               )
             )}
-          </>
+          </div>
         ))}
       </Box>
 

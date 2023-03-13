@@ -5,7 +5,8 @@ export default class Chat {
     public contact_name: string,
     public total_messages: number,
     public _id?: string,
-    public date?: string,
-    public preview?: string
+    public time?: string,
+    public updatedAt?: Date,
+    public latest_message?: string
   ) {}
 }

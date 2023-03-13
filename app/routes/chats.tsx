@@ -6,15 +6,13 @@ import {
   GridItem,
   Heading,
   SimpleGrid,
+  Spacer,
   Text,
 } from "@chakra-ui/react";
-import Nav from "~/shared/nav";
-import { connectToScamChatDatabase } from "~/server/mongodb/conn";
 import { retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { useState } from "react";
 
 export const loader = async () => {
   let chats: Chat[] = [];
@@ -32,7 +30,6 @@ export const loader = async () => {
 };
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
-  console.log(chats);
   return (
     <Box>
       <Grid
@@ -70,12 +67,10 @@ export default function Chats() {
                 <Box
                   h="80px"
                   borderBottom="1px"
-                  bg={isActive? "blue.100" : ""}
-                  _hover={isActive? {} : { bg: "blue.50" }}
+                  bg={isActive ? "blue.100" : ""}
+                  _hover={isActive ? {} : { bg: "blue.50" }}
                   borderBottomColor="gray.200"
-                  pl="3"
-                  pt="5"
-                  pb="5"
+                  p="4"
                 >
                   <Flex>
                     <Avatar
@@ -84,12 +79,22 @@ export default function Chats() {
                       mr="3"
                       src="https://bit.ly/dan-abramov"
                     />
-                    <SimpleGrid columns={1}>
-                      <Heading id="scammerName" fontSize="md">
-                        {chat.contact_name}
-                      </Heading>
-                      <Text fontSize="md">{chat.preview}</Text>
-                    </SimpleGrid>
+                    <Flex direction="column" flex="1">
+                      <Flex alignItems="top">
+                        <Heading id="scammerName" fontSize="md">
+                          {chat.contact_name}
+                        </Heading>
+                        <Spacer />
+                        <Text fontSize="xs">
+                          {formatDate(new Date(chat.updatedAt!))}
+                        </Text>
+                      </Flex>
+
+                      <Text fontSize="md" isTruncated>
+                        {chat.latest_message?.substring(0, 20) +
+                          (chat.latest_message && chat.latest_message.length > 20 ? "..." : "")}
+                      </Text>
+                    </Flex>
                   </Flex>
                 </Box>
               )}
@@ -104,3 +109,26 @@ export default function Chats() {
     </Box>
   );
 }
+
+const formatDate = (input: Date) => {
+  const now = new Date(); // current date and time
+  const diffInMs = now.getTime() - input.getTime(); // difference in milliseconds between now and input
+
+  if (input.toDateString() === now.toDateString()) {
+    return input
+      .toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .toUpperCase();
+  }
+  // check if input datetime is within the current week
+  else if (diffInMs < 7 * 24 * 60 * 60 * 1000) {
+    return input.toLocaleDateString([], { weekday: "long" });
+  }
+  // input datetime is outside of the current week
+  else {
+    return input.toLocaleDateString("en-GB");
+  }
+};
