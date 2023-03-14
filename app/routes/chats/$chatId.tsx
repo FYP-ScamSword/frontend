@@ -22,6 +22,7 @@ import MessageGroup from "~/server/models/MessageGroup";
 import { retrieveMessages } from "~/server/scamchat.server";
 import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import * as dialogflow from 'dialogflow';
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.chatId, `params.chatId is required`);
@@ -38,6 +39,40 @@ export const loader = async ({ params }: LoaderArgs) => {
     messagesGroupError,
   });
 };
+
+export const fetchSuggestedResponses = (input: string) => {
+  const projectId = 'scamchatagent-txtw';
+  const credentials = {
+    client_email: process.env.DIALOGFLOW_CLIENT_EMAIL,
+    private_key: process.env.DIALOGFLOW_PRIVATE_KEY,
+  };
+  const sessionClient = new dialogflow.SessionsClient({ projectId, credentials });
+
+  const sessionId = '1';
+  const sessionPath = sessionClient.sessionPath(projectId, sessionId);
+
+  const request = {
+    session: sessionPath,
+    queryInput: {
+      text: {
+        text: input,
+        languageCode: 'en',
+      },
+    },
+  };
+  
+  sessionClient.detectIntent(request)
+  .then(responses => {
+    const result = responses[0].queryResult;
+    console.log('Dialogflow response:');
+    console.log(JSON.parse(result.fulfillmentText));
+    return JSON.parse(result.fulfillmentText);
+  })
+  .catch(err => {
+    console.error('Dialogflow error:', err);
+  });
+};
+
 export default function ChatDetail() {
   const { messagesGroup, messagesGroupError } = useLoaderData<typeof loader>();
   return (
@@ -112,16 +147,22 @@ export default function ChatDetail() {
         <InputGroup h="100%">
           <Menu>
             <MenuButton as={InputLeftAddon} _hover={{ bg: "#D7E5F0" }} id="suggestionsBtn"><QuestionOutlineIcon /></MenuButton>
+            <MenuButton as={InputLeftAddon} onClick={() => { console.log("button clicked") }} _hover={{ bg: "#D7E5F0" }} id="suggestionsBtn"><QuestionOutlineIcon /></MenuButton>
             <MenuList>
               <MenuItem>
-                <Box w='100%' mt='2' mb='2'>woohoo</Box>
+                <Box w='100%' mt='2' mb='2'>a</Box>
               </MenuItem>
               <MenuItem>
-                <Box w='100%' mt='2' mb='2'>yayyy</Box>
+                <Box w='100%' mt='2' mb='2'>b</Box>
               </MenuItem>
               <MenuItem>
-                <Box w='100%' mt='2' mb='2'>gimme money, my paynow is xxxx xxxx</Box>
+                <Box w='100%' mt='2' mb='2'>c</Box>
               </MenuItem>
+              {/* {suggestedResponse ? suggestedResponse.forEach((r) => {
+                <MenuItem>
+                  <Box w='100%' mt='2' mb='2'>{r}</Box>
+                </MenuItem>
+              }) : <> </> } */}
             </MenuList>
           </Menu>
           <Input
