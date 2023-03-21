@@ -31,7 +31,7 @@ export const loader = async () => {
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
   return (
-    <Box>
+    <Box overflowY="hidden">
       <Grid
         h="calc(100vh - 60px)"
         templateRows="repeat(1, 1fr)"
