@@ -73,3 +73,37 @@ const handleDownload = (bucket: string, key: string) => {
     Expires: signedUrlExpireSeconds,
   });
 };
+
+// TODO: evidence
+export const sendTakedownEmail = async (url: string, destEmail: string) => {
+  // url in index.tsx is ${inspectedLink.original_url}
+  // dest email is ${inspectedLink.registrar_abuse_contact}? note that it may be null if the website's who is lookup failed or smth
+  console.log("SENDTAKENDOWN EMAIL: " + url)
+  console.log(destEmail)
+  return await fetch(`${process.env.TAKEDOWN_ENDPOINT}/sendEmailTemplate`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      "Source": "scamsword@gmail.com",
+      "Destination": {
+        "ToAddresses": [destEmail],
+        "CcAddresses": []
+      },
+      "Template": "template-registrar",
+      "TemplateData": {
+        "url": url,
+        "evidence": "Lorem ipsum dolor sit amet",
+        "contact": "scamsword@gmail.com"
+      }
+    }),
+  })
+    .then((response) => {
+      console.log(response)
+      return response;
+    })
+    .then((data) => data)
+    .catch((err) => console.error(err));
+};

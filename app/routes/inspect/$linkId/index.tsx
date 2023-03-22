@@ -4,6 +4,7 @@ import {
   Container,
   Divider,
   Flex,
+  Input,
   Spacer,
   Tab,
   TabList,
@@ -17,9 +18,10 @@ import {
   getInspectedLink,
   getReport,
   getScreenshot,
+  sendTakedownEmail,
 } from "~/server/inspect.server";
 import Nav from "~/shared/nav";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData, useParams, Form } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { collections, connectToDatabase } from "~/server/mongodb/conn";
@@ -28,6 +30,8 @@ import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
+import { useToast } from '@chakra-ui/react';
+import { type ActionFunction } from "@remix-run/server-runtime";
 
 export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
@@ -112,6 +116,19 @@ export const loader = async ({ params }: LoaderArgs) => {
   });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const link = formData.get("link");
+  const registrarEmail = formData.get("registrarEmail");
+
+  // dest addr - supposed to be registrar email but for testing/demo, use personal email
+  if (registrarEmail) {
+    sendTakedownEmail(link, "zxnlee00@gmail.com"); // 2nd parameter should be registrar contact?
+  }
+
+  return null;
+}
+
 export default function InspectSlug() {
   // const { inspectedLink } =
   //   useLoaderData<typeof loader>();
@@ -127,6 +144,9 @@ export default function InspectSlug() {
     domErr,
   } = useLoaderData<typeof loader>();
   console.log(screenshot, screenshotErr);
+
+  const toast = useToast();
+
   return (
     <Box>
       <Nav />
@@ -134,7 +154,39 @@ export default function InspectSlug() {
         <Flex my={8} >
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          <Button h="2rem">Report</Button>
+          <Form method="post">
+            <Input
+              readOnly={true}
+              name="link"
+              hidden={true}
+              defaultValue={inspectedLink.original_url}
+            />
+            <Input 
+              readOnly={true}
+              name="registrarEmail"
+              hidden={true}
+              defaultValue={inspectedLink.registrar_abuse_contact}
+            />
+            <Button h="2rem" type="submit"
+              onClick={() =>
+                inspectedLink.registrar_abuse_contact ?
+                  toast({
+                    title: 'Report Submitted.',
+                    description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                  })
+                : toast({
+                  title: 'Report Failed.',
+                  description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true,
+                })
+              }
+            >Report</Button>
+          </Form>
         </Flex>
         <Flex minWidth='max-content'>
           <Information
