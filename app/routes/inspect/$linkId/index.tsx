@@ -1,17 +1,27 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Divider,
   Flex,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spacer,
+  Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   getDom,
@@ -147,6 +157,8 @@ export default function InspectSlug() {
 
   const toast = useToast();
 
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
   return (
     <Box>
       <Nav />
@@ -154,39 +166,78 @@ export default function InspectSlug() {
         <Flex my={8} >
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          <Form method="post">
-            <Input
-              readOnly={true}
-              name="link"
-              hidden={true}
-              defaultValue={inspectedLink.original_url}
-            />
-            <Input 
-              readOnly={true}
-              name="registrarEmail"
-              hidden={true}
-              defaultValue={inspectedLink.registrar_abuse_contact}
-            />
-            <Button h="2rem" type="submit"
-              onClick={() =>
-                inspectedLink.registrar_abuse_contact ?
-                  toast({
-                    title: 'Report Submitted.',
-                    description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                  })
-                : toast({
-                  title: 'Report Failed.',
-                  description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
-                  status: 'error',
-                  duration: 9000,
-                  isClosable: true,
-                })
-              }
-            >Report</Button>
-          </Form>
+          {
+            inspectedLink.num_flags == 0
+            ? <Button h="2rem" isDisabled>Report</Button>
+            : <Button h="2rem" onClick={onOpen}>Report</Button>
+          }
+          <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>
+            <ModalOverlay />
+            <ModalContent maxW={650}>
+              <ModalHeader>Submit Takedown Request to Registrar</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <Text mb={3}>Please select the flags that you would like to send as evidence in the email report.</Text>
+                <Stack spacing={2} direction='column'>
+                  {inspectedLink!.combolevelsquatting_flag ? <Checkbox defaultChecked>Combo-level Squatting</Checkbox> : <></>}
+                  {inspectedLink!.dga_flag ? <Checkbox>Domain Generation Algorithm</Checkbox> : <></>}
+                  {inspectedLink!.redirections_flag ? <Checkbox defaultChecked>Abnormal Number of Redirections</Checkbox> : <></>}
+                  {inspectedLink!.domain_age_flag 
+                    ? inspectedLink.domain_age
+                    ? <Checkbox defaultChecked>Abnormal Domain Age</Checkbox> 
+                    : <Checkbox>Abnormal Domain Age</Checkbox>
+                    : <></>
+                  }
+                  {inspectedLink!.registration_period_flag ? <Checkbox defaultChecked>Short Registration Period Length</Checkbox> : <></>}
+                  {inspectedLink!.safe_browsing_flag ? <Checkbox defaultChecked>Safe Browsing Anomaly</Checkbox> : <></>}
+                  {inspectedLink!.subdomain_len_flag ? <Checkbox>Abnormal Subdomain Length</Checkbox> : <></>}
+                  {inspectedLink!.blacklisted_keyword_flag ? <Checkbox>Presence of Blacklisted Keyword(s)</Checkbox> : <></>}
+                  {inspectedLink!.homographsquatting_flag ? <Checkbox defaultChecked>Homograph Squatting</Checkbox> : <></>}
+                  {inspectedLink!.typobitsquatting_flag ? <Checkbox defaultChecked>Typo-bit Squatting</Checkbox> : <></>}
+                </Stack>
+              </ModalBody>
+              <ModalFooter>
+                <Form method="post">
+                  <Input
+                    readOnly={true}
+                    name="link"
+                    hidden={true}
+                    defaultValue={inspectedLink.original_url}
+                  />
+                  <Input 
+                    readOnly={true}
+                    name="registrarEmail"
+                    hidden={true}
+                    defaultValue={inspectedLink.registrar_abuse_contact}
+                  />
+                  <Button colorScheme='red' mr={3} onClick={onClose}>
+                    Close
+                  </Button>
+                  <Button type="submit" colorScheme='green' mr={3}
+                    onClick={() =>
+                      inspectedLink.registrar_abuse_contact ?
+                        toast({
+                          title: 'Report Submitted.',
+                          description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
+                          status: 'success',
+                          duration: 9000,
+                          isClosable: true,
+                        })
+                      : toast({
+                        title: 'Report Failed.',
+                        description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                        status: 'error',
+                        duration: 9000,
+                        isClosable: true,
+                      })
+                    }
+                  >
+                    Submit
+                  </Button>
+                </Form>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </Flex>
         <Flex minWidth='max-content'>
           <Information
