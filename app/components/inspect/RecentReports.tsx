@@ -12,13 +12,25 @@ import {
   Heading,
   Flex,
   Spacer,
+  Tooltip,
 } from "@chakra-ui/react";
-export default function RecentReports() {
+import dayjs from "dayjs";
+import InspectedLink from "~/server/models/InspectedLink";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+type Props = {recentScans:InspectedLink[]; recentScansErr: any }
+
+export default function RecentReports({
+  recentScans,
+  recentScansErr,
+}:Props) {
+
+  dayjs.extend(relativeTime)
+
   return (
     <div>
       <Flex mx={4} mb={4} alignItems='flex-end'>
         <Heading size="md">Recent Scans</Heading>
-        <Text ml={4} fontSize='sm'>Updates every minute</Text>
         <Spacer />
         <IconButton
           aria-label="Received"
@@ -27,41 +39,36 @@ export default function RecentReports() {
           icon={<RepeatIcon />}
         />
       </Flex>
-      <TableContainer>
+      <TableContainer mb={10}>
         <Table variant="simple">
           <Thead>
             <Tr>
               <Th>Link</Th>
               <Th>Summary</Th>
               <Th>Report Time</Th>
-              <Th>No. of Receivers</Th>
-              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
-            <Tr>
-              <Td>
-                <Text>https://u0b.ne</Text>
-              </Td>
-              <Td>
-                <Text>Highly Likely - Bank Impersonation</Text>
-              </Td>
-              <Td>
-                <Text>10s ago</Text>
-              </Td>
-              <Td>
-                <Text>10</Text>
-              </Td>
-              <Td>
-                <IconButton
-                  colorScheme="blue"
-                  aria-label="Received"
-                  size="xs"
-                  variant="outline"
-                  icon={<TriangleUpIcon />}
-                />
-              </Td>
-            </Tr>
+            { recentScans ? recentScans.map((scan) => (
+              <Tr>
+                <Td>
+                  <Tooltip label={scan.original_url}>
+                    <Text>{ ((scan.original_url).length > 40) ? 
+                      (((scan.original_url).substring(0,40-3)) + '...') : 
+                      scan.original_url }
+                    </Text>
+                  </Tooltip>
+                </Td>
+                <Td>
+                  <Text>Highly Likely - Bank Impersonation</Text>
+                </Td>
+                <Td>
+                  <Text>{dayjs(scan.updatedAt).fromNow()}</Text>
+                </Td>
+              </Tr>
+            )) :
+              <></>
+            }
           </Tbody>
         </Table>
       </TableContainer>

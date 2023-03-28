@@ -42,6 +42,10 @@ export const getReport = async (reportName: string) => {
   return await fetch(url).then((r) => r.text());
 };
 
+export const getRecentScans = async () => {
+  return await collections.inspectedLinks?.find({}).sort({ "updatedAt": -1 }).limit(5).toArray() as unknown as InspectedLink[];
+}
+
 const getLinkStatus = (decodedLink: string) => {
   const query = { original_url: decodedLink };
   return collections.inspectedLinks?.findOne(query) as unknown as InspectedLink;
