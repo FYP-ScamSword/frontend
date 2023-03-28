@@ -1,9 +1,9 @@
 {
   "exclude": ["./cypress", "./cypress.config.ts"],
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "app/routes/inspect/$linkId"],
+  "include": ["remix.env.d.ts", "index.d.ts", "**/*.ts", "**/*.tsx", "app/routes/inspect/$linkId"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2019"],
-    "types": ["vitest/globals"],
+    "types": ["node", "vitest/globals"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",

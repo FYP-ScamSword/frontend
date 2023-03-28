@@ -1,25 +1,37 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Divider,
   Flex,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spacer,
+  Stack,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   getDom,
   getInspectedLink,
   getReport,
   getScreenshot,
+  sendTakedownEmail,
 } from "~/server/inspect.server";
 import Nav from "~/shared/nav";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useLoaderData, useParams, Form } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { collections, connectToDatabase } from "~/server/mongodb/conn";
@@ -28,6 +40,8 @@ import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
+import { useToast } from '@chakra-ui/react';
+import { type ActionFunction } from "@remix-run/server-runtime";
 
 export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
@@ -112,6 +126,22 @@ export const loader = async ({ params }: LoaderArgs) => {
   });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const link = formData.get("link") as string;
+  const registrarEmail = formData.get("registrarEmail");
+
+  //split by comma, and then have corresponding text for each. and then send it as an extra param to the func below
+  const evidences = formData.getAll("evidenceCheckbox").toString();
+
+  // dest addr - supposed to be registrar email but for testing/demo, use personal email
+  if (registrarEmail) {
+    sendTakedownEmail(link, "zxnlee00@gmail.com", evidences); // 2nd parameter should be registrar contact?
+  }
+
+  return null;
+}
+
 export default function InspectSlug() {
   // const { inspectedLink } =
   //   useLoaderData<typeof loader>();
@@ -127,14 +157,89 @@ export default function InspectSlug() {
     domErr,
   } = useLoaderData<typeof loader>();
   console.log(screenshot, screenshotErr);
+
+  const toast = useToast();
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
   return (
     <Box>
-      <Nav />
       <Container maxW="container.lg" mt={8}>
         <Flex my={8} >
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          <Button h="2rem">Report</Button>
+          {
+            inspectedLink.num_flags == 0
+            ? <Button h="2rem" isDisabled>Report</Button>
+            : <Button h="2rem" onClick={onOpen}>Report</Button>
+          }
+          <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>
+            <ModalOverlay />
+            <ModalContent maxW={650}>
+              <ModalHeader>Submit Takedown Request to Registrar</ModalHeader>
+              <ModalCloseButton />
+              <Form method="post">
+                <ModalBody>
+                  <Text mb={3}>Please select the flags that you would like to send as evidence in the email report.</Text>
+                  <Stack spacing={2} direction='column'>
+                    {inspectedLink!.combolevelsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Combosquatting/Levelsquatting">Combo-level Squatting</Checkbox> : <></>}
+                    {inspectedLink!.dga_flag ? <Checkbox name="evidenceCheckbox" value="Domain Generation Algorithm">Domain Generation Algorithm</Checkbox> : <></>}
+                    {inspectedLink!.redirections_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Number of Redirections">Abnormal Number of Redirections</Checkbox> : <></>}
+                    {inspectedLink!.domain_age_flag 
+                      ? inspectedLink.domain_age
+                      ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox> 
+                      : <Checkbox name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox>
+                      : <></>
+                    }
+                    {inspectedLink!.registration_period_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Short Registration Period Length">Short Registration Period Length</Checkbox> : <></>}
+                    {inspectedLink!.safe_browsing_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Google's Safe Browsing Anomaly">Safe Browsing Anomaly</Checkbox> : <></>}
+                    {inspectedLink!.subdomain_len_flag ? <Checkbox name="evidenceCheckbox" value="Abnormal Subdomain String Length">Abnormal Subdomain Length</Checkbox> : <></>}
+                    {inspectedLink!.blacklisted_keyword_flag ? <Checkbox name="evidenceCheckbox" value="Presence of Blacklisted Keyword(s)">Presence of Blacklisted Keyword(s)</Checkbox> : <></>}
+                    {inspectedLink!.homographsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Homograph Squatting">Homograph Squatting</Checkbox> : <></>}
+                    {inspectedLink!.typobitsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Typosquatting/Bitsquatting">Typo-bit Squatting</Checkbox> : <></>}
+                  </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Input
+                      readOnly={true}
+                      name="link"
+                      hidden={true}
+                      defaultValue={inspectedLink.original_url}
+                    />
+                    <Input 
+                      readOnly={true}
+                      name="registrarEmail"
+                      hidden={true}
+                      defaultValue={inspectedLink.registrar_abuse_contact}
+                    />
+                    <Button colorScheme='red' mr={3} onClick={onClose}>
+                      Close
+                    </Button>
+                    <Button type="submit" colorScheme='green' mr={3}
+                      onClick={() =>
+                        inspectedLink.registrar_abuse_contact ?
+                          toast({
+                            title: 'Report Submitted.',
+                            description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
+                            status: 'success',
+                            duration: 9000,
+                            isClosable: true,
+                          })
+                        : toast({
+                          title: 'Report Failed.',
+                          description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                          status: 'error',
+                          duration: 9000,
+                          isClosable: true,
+                        })
+                      }
+                    >
+                      Submit
+                    </Button>
+                </ModalFooter>
+              </Form>
+            </ModalContent>
+          </Modal>
         </Flex>
         <Flex minWidth='max-content'>
           <Information

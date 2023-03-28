@@ -25,7 +25,6 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Inspect() {
   return (
     <Box>
-      <Nav />
       <Container maxW="container.lg" mt={16}>
         <LandingForm />
         <RecentReports />

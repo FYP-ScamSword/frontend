@@ -13,7 +13,7 @@ import {
 import type { MetaFunction, LinksFunction } from "@remix-run/node"; // Depends on the runtime you choose
 
 import { ServerStyleContext, ClientStyleContext } from "./context";
-import { connectToDatabase } from "./server/mongodb/conn";
+import Nav from "./shared/nav";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -70,6 +70,7 @@ const Document = withEmotionCache(
         </head>
         <body>
           {children}
+          {/* <Outlet /> */}
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
@@ -83,6 +84,7 @@ export default function App() {
   return (
     <Document>
       <ChakraProvider>
+        <Nav/>
         <Outlet />
       </ChakraProvider>
     </Document>
