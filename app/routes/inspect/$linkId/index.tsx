@@ -128,7 +128,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const link = formData.get("link");
+  const link = formData.get("link") as string;
   const registrarEmail = formData.get("registrarEmail");
 
   //split by comma, and then have corresponding text for each. and then send it as an extra param to the func below
