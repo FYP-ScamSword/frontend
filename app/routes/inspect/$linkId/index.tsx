@@ -131,9 +131,12 @@ export const action: ActionFunction = async ({ request }) => {
   const link = formData.get("link");
   const registrarEmail = formData.get("registrarEmail");
 
+  //split by comma, and then have corresponding text for each. and then send it as an extra param to the func below
+  const evidences = formData.getAll("evidenceCheckbox").toString();
+
   // dest addr - supposed to be registrar email but for testing/demo, use personal email
   if (registrarEmail) {
-    sendTakedownEmail(link, "zxnlee00@gmail.com"); // 2nd parameter should be registrar contact?
+    sendTakedownEmail(link, "zxnlee00@gmail.com", evidences); // 2nd parameter should be registrar contact?
   }
 
   return null;
@@ -176,66 +179,66 @@ export default function InspectSlug() {
             <ModalContent maxW={650}>
               <ModalHeader>Submit Takedown Request to Registrar</ModalHeader>
               <ModalCloseButton />
-              <ModalBody>
-                <Text mb={3}>Please select the flags that you would like to send as evidence in the email report.</Text>
-                <Stack spacing={2} direction='column'>
-                  {inspectedLink!.combolevelsquatting_flag ? <Checkbox defaultChecked>Combo-level Squatting</Checkbox> : <></>}
-                  {inspectedLink!.dga_flag ? <Checkbox>Domain Generation Algorithm</Checkbox> : <></>}
-                  {inspectedLink!.redirections_flag ? <Checkbox defaultChecked>Abnormal Number of Redirections</Checkbox> : <></>}
-                  {inspectedLink!.domain_age_flag 
-                    ? inspectedLink.domain_age
-                    ? <Checkbox defaultChecked>Abnormal Domain Age</Checkbox> 
-                    : <Checkbox>Abnormal Domain Age</Checkbox>
-                    : <></>
-                  }
-                  {inspectedLink!.registration_period_flag ? <Checkbox defaultChecked>Short Registration Period Length</Checkbox> : <></>}
-                  {inspectedLink!.safe_browsing_flag ? <Checkbox defaultChecked>Safe Browsing Anomaly</Checkbox> : <></>}
-                  {inspectedLink!.subdomain_len_flag ? <Checkbox>Abnormal Subdomain Length</Checkbox> : <></>}
-                  {inspectedLink!.blacklisted_keyword_flag ? <Checkbox>Presence of Blacklisted Keyword(s)</Checkbox> : <></>}
-                  {inspectedLink!.homographsquatting_flag ? <Checkbox defaultChecked>Homograph Squatting</Checkbox> : <></>}
-                  {inspectedLink!.typobitsquatting_flag ? <Checkbox defaultChecked>Typo-bit Squatting</Checkbox> : <></>}
-                </Stack>
-              </ModalBody>
-              <ModalFooter>
-                <Form method="post">
-                  <Input
-                    readOnly={true}
-                    name="link"
-                    hidden={true}
-                    defaultValue={inspectedLink.original_url}
-                  />
-                  <Input 
-                    readOnly={true}
-                    name="registrarEmail"
-                    hidden={true}
-                    defaultValue={inspectedLink.registrar_abuse_contact}
-                  />
-                  <Button colorScheme='red' mr={3} onClick={onClose}>
-                    Close
-                  </Button>
-                  <Button type="submit" colorScheme='green' mr={3}
-                    onClick={() =>
-                      inspectedLink.registrar_abuse_contact ?
-                        toast({
-                          title: 'Report Submitted.',
-                          description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
-                          status: 'success',
+              <Form method="post">
+                <ModalBody>
+                  <Text mb={3}>Please select the flags that you would like to send as evidence in the email report.</Text>
+                  <Stack spacing={2} direction='column'>
+                    {inspectedLink!.combolevelsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Combosquatting/Levelsquatting">Combo-level Squatting</Checkbox> : <></>}
+                    {inspectedLink!.dga_flag ? <Checkbox name="evidenceCheckbox" value="Domain Generation Algorithm">Domain Generation Algorithm</Checkbox> : <></>}
+                    {inspectedLink!.redirections_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Number of Redirections">Abnormal Number of Redirections</Checkbox> : <></>}
+                    {inspectedLink!.domain_age_flag 
+                      ? inspectedLink.domain_age
+                      ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox> 
+                      : <Checkbox name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox>
+                      : <></>
+                    }
+                    {inspectedLink!.registration_period_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Short Registration Period Length">Short Registration Period Length</Checkbox> : <></>}
+                    {inspectedLink!.safe_browsing_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Google's Safe Browsing Anomaly">Safe Browsing Anomaly</Checkbox> : <></>}
+                    {inspectedLink!.subdomain_len_flag ? <Checkbox name="evidenceCheckbox" value="Abnormal Subdomain String Length">Abnormal Subdomain Length</Checkbox> : <></>}
+                    {inspectedLink!.blacklisted_keyword_flag ? <Checkbox name="evidenceCheckbox" value="Presence of Blacklisted Keyword(s)">Presence of Blacklisted Keyword(s)</Checkbox> : <></>}
+                    {inspectedLink!.homographsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Homograph Squatting">Homograph Squatting</Checkbox> : <></>}
+                    {inspectedLink!.typobitsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Typosquatting/Bitsquatting">Typo-bit Squatting</Checkbox> : <></>}
+                  </Stack>
+                </ModalBody>
+                <ModalFooter>
+                    <Input
+                      readOnly={true}
+                      name="link"
+                      hidden={true}
+                      defaultValue={inspectedLink.original_url}
+                    />
+                    <Input 
+                      readOnly={true}
+                      name="registrarEmail"
+                      hidden={true}
+                      defaultValue={inspectedLink.registrar_abuse_contact}
+                    />
+                    <Button colorScheme='red' mr={3} onClick={onClose}>
+                      Close
+                    </Button>
+                    <Button type="submit" colorScheme='green' mr={3}
+                      onClick={() =>
+                        inspectedLink.registrar_abuse_contact ?
+                          toast({
+                            title: 'Report Submitted.',
+                            description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
+                            status: 'success',
+                            duration: 9000,
+                            isClosable: true,
+                          })
+                        : toast({
+                          title: 'Report Failed.',
+                          description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                          status: 'error',
                           duration: 9000,
                           isClosable: true,
                         })
-                      : toast({
-                        title: 'Report Failed.',
-                        description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
-                        status: 'error',
-                        duration: 9000,
-                        isClosable: true,
-                      })
-                    }
-                  >
-                    Submit
-                  </Button>
-                </Form>
-              </ModalFooter>
+                      }
+                    >
+                      Submit
+                    </Button>
+                </ModalFooter>
+              </Form>
             </ModalContent>
           </Modal>
         </Flex>

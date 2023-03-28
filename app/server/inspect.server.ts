@@ -74,12 +74,21 @@ const handleDownload = (bucket: string, key: string) => {
   });
 };
 
-// TODO: evidence
-export const sendTakedownEmail = async (url: string, destEmail: string) => {
+export const sendTakedownEmail = async (url: string, destEmail: string, evidences: string) => {
   // url in index.tsx is ${inspectedLink.original_url}
   // dest email is ${inspectedLink.registrar_abuse_contact}? note that it may be null if the website's who is lookup failed or smth
   console.log("SENDTAKENDOWN EMAIL: " + url)
   console.log(destEmail)
+  const evidenceArray = evidences.split(",");
+
+  var evidenceStr = "<ol>";
+
+  for (var i = 0; i < evidenceArray.length; i++) {
+    evidenceStr += `<li>${evidenceArray[i]}</li>`;
+  }
+
+  evidenceStr += "</ol>";
+
   return await fetch(`${process.env.TAKEDOWN_ENDPOINT}/sendEmailTemplate`, {
     method: "POST",
     headers: {
@@ -95,7 +104,7 @@ export const sendTakedownEmail = async (url: string, destEmail: string) => {
       "Template": "template-registrar",
       "TemplateData": {
         "url": url,
-        "evidence": "Lorem ipsum dolor sit amet",
+        "evidence": evidenceStr,
         "contact": "scamsword@gmail.com"
       }
     }),
