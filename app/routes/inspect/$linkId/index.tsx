@@ -164,7 +164,6 @@ export default function InspectSlug() {
 
   return (
     <Box>
-      <Nav />
       <Container maxW="container.lg" mt={8}>
         <Flex my={8} >
           <Text fontSize="xl">{linkId}</Text>

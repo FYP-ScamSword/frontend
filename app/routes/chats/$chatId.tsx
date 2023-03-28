@@ -33,7 +33,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   let messagesGroup: MessageGroup[] = [];
   let messagesGroupError;
   try {
-    messagesGroup = await retrieveMessages("+6596719465", params.chatId);
+    messagesGroup = await retrieveMessages("+6584355906", params.chatId);
   } catch (error) {
     messagesGroupError = error;
   }

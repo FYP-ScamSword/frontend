@@ -19,7 +19,7 @@ export const loader = async () => {
   let chatsError;
 
   try {
-    chats = await retrieveChats("+6596719465");
+    chats = await retrieveChats("+6584355906");
   } catch (error) {
     chatsError = error;
   }
