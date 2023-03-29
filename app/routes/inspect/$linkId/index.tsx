@@ -40,6 +40,7 @@ import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
+import Verdict from "./Verdict";
 import { useToast } from '@chakra-ui/react';
 import { type ActionFunction } from "@remix-run/server-runtime";
 
@@ -165,7 +166,7 @@ export default function InspectSlug() {
   return (
     <Box>
       <Container maxW="container.lg" mt={8}>
-        <Flex my={8} >
+        <Flex my={8}>
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
           {
@@ -241,16 +242,16 @@ export default function InspectSlug() {
             </ModalContent>
           </Modal>
         </Flex>
-        <Flex minWidth='max-content'>
+        <Flex minWidth="max-content">
           <Information
             inspectedLink={inspectedLink}
             inspectedLinkErr={inspectedLinkErr}
           />
-          <Divider orientation='vertical' mx={8}/>
+          <Divider orientation="vertical" mx={8} />
           <Screenshot screenshot={screenshot} screenshotErr={screenshotErr} />
         </Flex>
 
-        <Tabs my={8}>
+        <Tabs my={4}>
           <TabList>
             <Tab>Report</Tab>
             <Tab>DOM</Tab>
