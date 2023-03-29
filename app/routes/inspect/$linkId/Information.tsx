@@ -36,11 +36,19 @@ export default function Information({
             <Tbody>
               <Tr>
                 <Td>Original URL</Td>
-                <Td>{inspectedLink!.original_url}</Td>
+                <Td>
+                  {((inspectedLink!.original_url).length > 40) ? 
+                  (((inspectedLink!.original_url).substring(0,40-3)) + '...') : 
+                  inspectedLink!.original_url}
+                </Td>
               </Tr>
               <Tr>
                 <Td>Processed URL</Td>
-                <Td>{inspectedLink!.processed_url}</Td>
+                <Td>                  
+                  {((inspectedLink!.processed_url).length > 40) ? 
+                  (((inspectedLink!.processed_url).substring(0,40-3)) + '...') : 
+                  inspectedLink!.processed_url}
+                </Td>
               </Tr>
               <Tr>
                 <Td>Domain Age</Td>

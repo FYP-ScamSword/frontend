@@ -17,6 +17,7 @@ import {
 import dayjs from "dayjs";
 import InspectedLink from "~/server/models/InspectedLink";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useRevalidator } from 'react-router-dom';
 
 type Props = {recentScans:InspectedLink[]; recentScansErr: any }
 
@@ -25,6 +26,7 @@ export default function RecentReports({
   recentScansErr,
 }:Props) {
 
+  const revalidator = useRevalidator();
   dayjs.extend(relativeTime)
 
   return (
@@ -37,6 +39,9 @@ export default function RecentReports({
           size="xs"
           variant="outline"
           icon={<RepeatIcon />}
+          onClick={() => {
+            revalidator.revalidate()
+          }}
         />
       </Flex>
       <TableContainer mb={10}>
@@ -52,7 +57,7 @@ export default function RecentReports({
             { recentScans ? recentScans.map((scan) => (
               <Tr>
                 <Td>
-                  <Tooltip label={scan.original_url}>
+                  <Tooltip label={scan.original_url} placement="left">
                     <Text>{ ((scan.original_url).length > 40) ? 
                       (((scan.original_url).substring(0,40-3)) + '...') : 
                       scan.original_url }
