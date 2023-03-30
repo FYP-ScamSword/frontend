@@ -70,11 +70,11 @@ export default function RecentReports({
                     <Badge size="lg" colorScheme="green">
                       Site is safe
                     </Badge>
-                  ) : scan!.flag_points >= 5 ? (
+                  ) : scan!.flag_score >= 5 ? (
                     <Badge size="lg" colorScheme="red">
                       Potentially Scam
                     </Badge>
-                  ) : scan!.flag_points >= 3.6 ? (
+                  ) : scan!.flag_score >= 3.6 ? (
                     <Badge size="lg" colorScheme="orange">
                       Likely Scam
                     </Badge>
