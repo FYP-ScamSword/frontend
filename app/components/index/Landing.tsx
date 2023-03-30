@@ -18,7 +18,7 @@ import image from "~/assets/shield.png";
 import daysIcon from "~/assets/days-icon.png";
 import shieldIcon from "~/assets/shield-icon.png";
 import alertIcon from "~/assets/alert-icon.png";
-import appScreenshot from "~/assets/app-screenshot.png";
+import appScreenshot1 from "~/assets/app-screenshot-2.png";
 import grey from "~/assets/grey.png";
 
 export default function Landing() {
@@ -62,7 +62,7 @@ export default function Landing() {
               2
             </Heading>
             <Text fontSize="sm">
-            Useful Statistics on something useful
+              Useful Statistics on something useful
             </Text>
           </Box>
         </Flex>
@@ -74,7 +74,7 @@ export default function Landing() {
               100+
             </Heading>
             <Text fontSize="sm">
-            Scam/phishing links reported & taken down
+              Scam/phishing links reported & taken down
             </Text>
           </Box>
         </Flex>
@@ -143,8 +143,8 @@ export default function Landing() {
           </Card>
         </Box>
         <Spacer />
-        <Box boxSize="500">
-          <Image src={appScreenshot} boxShadow="-70px 190px 200px 10px #D9EFEF" borderTopLeftRadius={20} borderBottomLeftRadius={20} mt={10} />
+        <Box ml={20} p={0} borderTopLeftRadius={20} borderBottomLeftRadius={20} boxShadow="-70px 190px 200px 10px #D9EFEF">
+          <Image src={appScreenshot1} boxShadow="-5px 5px 10px 1px #D9DADA" borderTopLeftRadius={20} borderBottomLeftRadius={20} mt={10} />
         </Box>
       </Flex>
       <Box h={10}></Box>
