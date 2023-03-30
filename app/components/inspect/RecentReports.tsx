@@ -29,7 +29,7 @@ export default function RecentReports({
 
   const revalidator = useRevalidator();
   dayjs.extend(relativeTime)
-
+  console.log(recentScans)
   return (
     <div>
       <Flex mx={4} mb={4} alignItems='flex-end'>
@@ -56,7 +56,7 @@ export default function RecentReports({
           </Thead>
           <Tbody>
             { recentScans ? recentScans.map((scan) => (
-              <Tr>
+              <Tr key={scan.original_url}>
                 <Td>
                   <Tooltip label={scan.original_url} placement="left">
                     <Text>{ ((scan.original_url).length > 40) ? 
@@ -85,7 +85,7 @@ export default function RecentReports({
                   )}
                 </Td>
                 <Td>
-                  <Text>{dayjs(scan.updatedAt).fromNow()}</Text>
+                  <Text>{dayjs(new Date(scan.updatedAt)).fromNow()}</Text>
                 </Td>
               </Tr>
             )) :

@@ -31,7 +31,7 @@ import {
 } from "./TooltipStrings";
 
 interface InformationProps {
-  inspectedLink: InspectedLink;
+  inspectedLink?: InspectedLink;
   inspectedLinkErr: any;
 }
 
@@ -223,7 +223,7 @@ export default function Information({
                 </Td>
               </Tr>
             </Tbody>
-            <Tfoot >
+            <Tfoot>
               <Tr>
                 <Th>Verdict</Th>
                 <Th>

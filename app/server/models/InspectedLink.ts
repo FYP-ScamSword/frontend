@@ -22,7 +22,7 @@ export default class InspectedLink {
     public homographsquatting_flag: Boolean,
     public typobitsquatting_flag: Boolean,
     public combolevelsquatting_flag: Boolean,
-    public updatedAt: Date,
+    public updatedAt: string,
     public _id?: string
 
 
