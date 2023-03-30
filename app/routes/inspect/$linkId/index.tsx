@@ -30,7 +30,6 @@ import {
   getScreenshot,
   sendTakedownEmail,
 } from "~/server/inspect.server";
-import Nav from "~/shared/nav";
 import { useLoaderData, useParams, Form } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
@@ -62,6 +61,10 @@ export const loader = async ({ params }: LoaderArgs) => {
   }
   try {
     dom = await getDom(decodeURIComponent(params.linkId));
+    if (dom.error) {
+      domErr = dom;
+      dom = undefined;
+    }
   } catch (error) {
     domErr = error;
   }
