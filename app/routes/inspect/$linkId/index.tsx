@@ -40,18 +40,14 @@ import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
-import Verdict from "./Verdict";
-import { useToast } from '@chakra-ui/react';
+import { useToast } from "@chakra-ui/react";
 import { type ActionFunction } from "@remix-run/server-runtime";
 
 export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
 
   invariant(params.linkId, `params.linkId is required`);
-  var dom,
-    screenshot,
-    inspectedLink: InspectedLink | null = null,
-    inspectionReport;
+  var dom, screenshot, inspectedLink, inspectionReport;
   var domErr, screenshotErr, inspectedLinkErr, inspectionReportErr;
 
   try {
@@ -59,7 +55,6 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectedLinkErr = error;
   }
-  console.log(inspectedLink);
   try {
     screenshot = await getScreenshot(decodeURIComponent(params.linkId));
   } catch (error) {
@@ -141,7 +136,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   return null;
-}
+};
 
 export default function InspectSlug() {
   // const { inspectedLink } =
@@ -161,7 +156,7 @@ export default function InspectSlug() {
 
   const toast = useToast();
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box>
@@ -169,74 +164,190 @@ export default function InspectSlug() {
         <Flex my={8}>
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          {
-            inspectedLink.num_flags == 0
-            ? <Button h="2rem" isDisabled>Report</Button>
-            : <Button h="2rem" onClick={onOpen}>Report</Button>
-          }
-          <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose} isCentered>
+          {inspectedLink.num_flags == 0 ? (
+            <Button h="2rem" isDisabled>
+              Report
+            </Button>
+          ) : (
+            <Button h="2rem" onClick={onOpen}>
+              Report
+            </Button>
+          )}
+          <Modal
+            closeOnOverlayClick={false}
+            isOpen={isOpen}
+            onClose={onClose}
+            isCentered
+          >
             <ModalOverlay />
             <ModalContent maxW={650}>
               <ModalHeader>Submit Takedown Request to Registrar</ModalHeader>
               <ModalCloseButton />
               <Form method="post">
                 <ModalBody>
-                  <Text mb={3}>Please select the flags that you would like to send as evidence in the email report.</Text>
-                  <Stack spacing={2} direction='column'>
-                    {inspectedLink!.combolevelsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Combosquatting/Levelsquatting">Combo-level Squatting</Checkbox> : <></>}
-                    {inspectedLink!.dga_flag ? <Checkbox name="evidenceCheckbox" value="Domain Generation Algorithm">Domain Generation Algorithm</Checkbox> : <></>}
-                    {inspectedLink!.redirections_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Number of Redirections">Abnormal Number of Redirections</Checkbox> : <></>}
-                    {inspectedLink!.domain_age_flag 
-                      ? inspectedLink.domain_age
-                      ? <Checkbox defaultChecked name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox> 
-                      : <Checkbox name="evidenceCheckbox" value="Abnormal Domain Age">Abnormal Domain Age</Checkbox>
-                      : <></>
-                    }
-                    {inspectedLink!.registration_period_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Short Registration Period Length">Short Registration Period Length</Checkbox> : <></>}
-                    {inspectedLink!.safe_browsing_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Google's Safe Browsing Anomaly">Safe Browsing Anomaly</Checkbox> : <></>}
-                    {inspectedLink!.subdomain_len_flag ? <Checkbox name="evidenceCheckbox" value="Abnormal Subdomain String Length">Abnormal Subdomain Length</Checkbox> : <></>}
-                    {inspectedLink!.blacklisted_keyword_flag ? <Checkbox name="evidenceCheckbox" value="Presence of Blacklisted Keyword(s)">Presence of Blacklisted Keyword(s)</Checkbox> : <></>}
-                    {inspectedLink!.homographsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Homograph Squatting">Homograph Squatting</Checkbox> : <></>}
-                    {inspectedLink!.typobitsquatting_flag ? <Checkbox defaultChecked name="evidenceCheckbox" value="Typosquatting/Bitsquatting">Typo-bit Squatting</Checkbox> : <></>}
+                  <Text mb={3}>
+                    Please select the flags that you would like to send as
+                    evidence in the email report.
+                  </Text>
+                  <Stack spacing={2} direction="column">
+                    {inspectedLink!.combolevelsquatting_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Combosquatting/Levelsquatting"
+                      >
+                        Combo-level Squatting
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.dga_flag ? (
+                      <Checkbox
+                        name="evidenceCheckbox"
+                        value="Domain Generation Algorithm"
+                      >
+                        Domain Generation Algorithm
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.redirections_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Abnormal Number of Redirections"
+                      >
+                        Abnormal Number of Redirections
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.domain_age_flag ? (
+                      inspectedLink.domain_age ? (
+                        <Checkbox
+                          defaultChecked
+                          name="evidenceCheckbox"
+                          value="Abnormal Domain Age"
+                        >
+                          Abnormal Domain Age
+                        </Checkbox>
+                      ) : (
+                        <Checkbox
+                          name="evidenceCheckbox"
+                          value="Abnormal Domain Age"
+                        >
+                          Abnormal Domain Age
+                        </Checkbox>
+                      )
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.registration_period_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Short Registration Period Length"
+                      >
+                        Short Registration Period Length
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.safe_browsing_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Google's Safe Browsing Anomaly"
+                      >
+                        Safe Browsing Anomaly
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.subdomain_len_flag ? (
+                      <Checkbox
+                        name="evidenceCheckbox"
+                        value="Abnormal Subdomain String Length"
+                      >
+                        Abnormal Subdomain Length
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.blacklisted_keyword_flag ? (
+                      <Checkbox
+                        name="evidenceCheckbox"
+                        value="Presence of Blacklisted Keyword(s)"
+                      >
+                        Presence of Blacklisted Keyword(s)
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.homographsquatting_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Homograph Squatting"
+                      >
+                        Homograph Squatting
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
+                    {inspectedLink!.typobitsquatting_flag ? (
+                      <Checkbox
+                        defaultChecked
+                        name="evidenceCheckbox"
+                        value="Typosquatting/Bitsquatting"
+                      >
+                        Typo-bit Squatting
+                      </Checkbox>
+                    ) : (
+                      <></>
+                    )}
                   </Stack>
                 </ModalBody>
                 <ModalFooter>
-                    <Input
-                      readOnly={true}
-                      name="link"
-                      hidden={true}
-                      defaultValue={inspectedLink.original_url}
-                    />
-                    <Input 
-                      readOnly={true}
-                      name="registrarEmail"
-                      hidden={true}
-                      defaultValue={inspectedLink.registrar_abuse_contact}
-                    />
-                    <Button colorScheme='red' mr={3} onClick={onClose}>
-                      Close
-                    </Button>
-                    <Button type="submit" colorScheme='green' mr={3}
-                      onClick={() =>
-                        inspectedLink.registrar_abuse_contact ?
-                          toast({
-                            title: 'Report Submitted.',
+                  <Input
+                    readOnly={true}
+                    name="link"
+                    hidden={true}
+                    defaultValue={inspectedLink.original_url}
+                  />
+                  <Input
+                    readOnly={true}
+                    name="registrarEmail"
+                    hidden={true}
+                    defaultValue={inspectedLink.registrar_abuse_contact}
+                  />
+                  <Button colorScheme="red" mr={3} onClick={onClose}>
+                    Close
+                  </Button>
+                  <Button
+                    type="submit"
+                    colorScheme="green"
+                    mr={3}
+                    onClick={() =>
+                      inspectedLink.registrar_abuse_contact
+                        ? toast({
+                            title: "Report Submitted.",
                             description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
-                            status: 'success',
+                            status: "success",
                             duration: 9000,
                             isClosable: true,
                           })
                         : toast({
-                          title: 'Report Failed.',
-                          description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
-                          status: 'error',
-                          duration: 9000,
-                          isClosable: true,
-                        })
-                      }
-                    >
-                      Submit
-                    </Button>
+                            title: "Report Failed.",
+                            description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                            status: "error",
+                            duration: 9000,
+                            isClosable: true,
+                          })
+                    }
+                  >
+                    Submit
+                  </Button>
                 </ModalFooter>
               </Form>
             </ModalContent>
