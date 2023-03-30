@@ -3,7 +3,29 @@ import RecentReports from "~/components/inspect/RecentReports";
 import LandingForm from "~/components/inspect/LandingForm";
 import Nav from "~/shared/nav";
 import { type ActionFunction, redirect } from "@remix-run/server-runtime";
-import { inspectLink } from "~/server/inspect.server";
+import { inspectLink, getRecentScans } from "~/server/inspect.server";
+import { useLoaderData } from "@remix-run/react";
+import { json, type LoaderArgs } from "@remix-run/node";
+import { connectToDatabase } from "~/server/mongodb/conn";
+import InspectedLink from "~/server/models/InspectedLink";
+
+export const loader = async ({params}:LoaderArgs) => {
+  await connectToDatabase();
+
+  let recentScans: InspectedLink[] = [];
+  let recentScansErr;
+
+  try {
+    recentScans = (await getRecentScans()) as InspectedLink[];
+  } catch (error) {
+    recentScansErr = error;
+  }
+
+  return json({
+    recentScans,
+    recentScansErr
+  });
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -22,12 +44,15 @@ export const action: ActionFunction = async ({ request }) => {
   await inspectLink(link as string);
   return redirect(`/inspect/${encodeURIComponent(link as string)}`);
 };
+
 export default function Inspect() {
+  const { recentScans, recentScansErr } = useLoaderData<typeof loader>();
+
   return (
     <Box>
       <Container maxW="container.lg" mt={16}>
         <LandingForm />
-        <RecentReports />
+        <RecentReports recentScans={recentScans} recentScansErr={recentScansErr} />
       </Container>
     </Box>
   );
