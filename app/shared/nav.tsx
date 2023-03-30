@@ -151,7 +151,7 @@ interface NavItem {
 const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Chat",
-    href: "/chat",
+    href: "/chats",
   },
   {
     label: "Link Inspector",

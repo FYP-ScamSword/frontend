@@ -50,7 +50,6 @@ export default function Inspect() {
 
   return (
     <Box>
-      <Nav />
       <Container maxW="container.lg" mt={16}>
         <LandingForm />
         <RecentReports recentScans={recentScans} recentScansErr={recentScansErr} />
