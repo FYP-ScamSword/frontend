@@ -13,6 +13,7 @@ import {
   Flex,
   Spacer,
   Tooltip,
+  Badge,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import InspectedLink from "~/server/models/InspectedLink";
@@ -49,7 +50,7 @@ export default function RecentReports({
           <Thead>
             <Tr>
               <Th>Link</Th>
-              <Th>Summary</Th>
+              <Th>Verdict</Th>
               <Th>Report Time</Th>
             </Tr>
           </Thead>
@@ -65,7 +66,23 @@ export default function RecentReports({
                   </Tooltip>
                 </Td>
                 <Td>
-                  <Text>Highly Likely - Bank Impersonation</Text>
+                  {scan!.to_flag === false ? (
+                    <Badge size="lg" colorScheme="green">
+                      Site is safe
+                    </Badge>
+                  ) : scan!.flag_points >= 5 ? (
+                    <Badge size="lg" colorScheme="red">
+                      Potentially Scam
+                    </Badge>
+                  ) : scan!.flag_points >= 3.6 ? (
+                    <Badge size="lg" colorScheme="orange">
+                      Likely Scam
+                    </Badge>
+                  ) : (
+                    <Badge size="lg" colorScheme="gray">
+                      Unclassified
+                    </Badge>
+                  )}
                 </Td>
                 <Td>
                   <Text>{dayjs(scan.updatedAt).fromNow()}</Text>
