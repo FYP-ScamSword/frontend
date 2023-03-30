@@ -152,7 +152,6 @@ export default function InspectSlug() {
     dom,
     domErr,
   } = useLoaderData<typeof loader>();
-  console.log(screenshot, screenshotErr);
 
   const toast = useToast();
 

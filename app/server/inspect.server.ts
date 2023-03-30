@@ -8,7 +8,6 @@ AWS.config.update({
   region: "us-east-1",
 });
 export const inspectLink = async (link: string) => {
-  console.log(link)
   return await fetch(`${process.env.LINK_INSPECTION_BACKEND}/api/linkinspect`, {
     method: "POST",
     headers: {
@@ -18,7 +17,6 @@ export const inspectLink = async (link: string) => {
     body: JSON.stringify({ inspectURL: link }),
   })
     .then((response) => {
-      console.log(response)
       return response.json();
     })
     .then((data) => data)
@@ -66,7 +64,6 @@ export const getScreenshot = async (processedUrl: String) => {
 };
 
 const handleDownload = (bucket: string, key: string) => {
-  console.log(bucket, key);
   if (key.length == 0) return "";
   const s3 = new AWS.S3();
 
@@ -81,8 +78,6 @@ const handleDownload = (bucket: string, key: string) => {
 export const sendTakedownEmail = async (url: string, destEmail: string, evidences: string) => {
   // url in index.tsx is ${inspectedLink.original_url}
   // dest email is ${inspectedLink.registrar_abuse_contact}? note that it may be null if the website's who is lookup failed or smth
-  console.log("SENDTAKENDOWN EMAIL: " + url)
-  console.log(destEmail)
   const evidenceArray = evidences.split(",");
 
   var evidenceStr = "<ol>";
@@ -114,7 +109,6 @@ export const sendTakedownEmail = async (url: string, destEmail: string, evidence
     }),
   })
     .then((response) => {
-      console.log(response)
       return response;
     })
     .then((data) => data)
