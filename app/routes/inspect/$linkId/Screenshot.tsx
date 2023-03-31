@@ -8,7 +8,7 @@ export default function Screenshot({ screenshot, screenshotErr }: Props) {
   return (
     <Box p="6">
       <Text>Screenshot</Text>
-      {screenshotErr ? (
+      {!screenshot ? (
         <Text color="red">
           Error: screenshot cannot be retrieved {JSON.stringify(screenshotErr)}
         </Text>

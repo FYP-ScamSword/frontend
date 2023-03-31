@@ -1,4 +1,4 @@
-import InspectedLink from "./models/InspectedLink";
+import type InspectedLink from "./models/InspectedLink";
 import { collections } from "./mongodb/conn";
 import AWS from "aws-sdk";
 
@@ -16,10 +16,7 @@ export const inspectLink = async (link: string) => {
     },
     body: JSON.stringify({ inspectURL: link }),
   })
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => data)
+    .then((res) => res.json())
     .catch((err) => console.error(err));
 };
 
@@ -41,8 +38,12 @@ export const getReport = async (reportName: string) => {
 };
 
 export const getRecentScans = async () => {
-  return await collections.inspectedLinks?.find({}).sort({ "updatedAt": -1 }).limit(5).toArray() as unknown as InspectedLink[];
-}
+  return (await collections.inspectedLinks
+    ?.find({})
+    .sort({ updatedAt: -1 })
+    .limit(5)
+    .toArray()) as unknown as InspectedLink[];
+};
 
 const getLinkStatus = (decodedLink: string) => {
   const query = { original_url: decodedLink };
@@ -75,7 +76,11 @@ const handleDownload = (bucket: string, key: string) => {
   });
 };
 
-export const sendTakedownEmail = async (url: string, destEmail: string, evidences: string) => {
+export const sendTakedownEmail = async (
+  url: string,
+  destEmail: string,
+  evidences: string
+) => {
   // url in index.tsx is ${inspectedLink.original_url}
   // dest email is ${inspectedLink.registrar_abuse_contact}? note that it may be null if the website's who is lookup failed or smth
   const evidenceArray = evidences.split(",");
@@ -95,17 +100,17 @@ export const sendTakedownEmail = async (url: string, destEmail: string, evidence
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      "Source": "scamsword@gmail.com",
-      "Destination": {
-        "ToAddresses": [destEmail],
-        "CcAddresses": []
+      Source: "scamsword@gmail.com",
+      Destination: {
+        ToAddresses: [destEmail],
+        CcAddresses: [],
       },
-      "Template": "template-registrar",
-      "TemplateData": {
-        "url": url,
-        "evidence": evidenceStr,
-        "contact": "scamsword@gmail.com"
-      }
+      Template: "template-registrar",
+      TemplateData: {
+        url: url,
+        evidence: evidenceStr,
+        contact: "scamsword@gmail.com",
+      },
     }),
   })
     .then((response) => {

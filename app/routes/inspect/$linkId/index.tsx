@@ -46,27 +46,31 @@ export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
 
   invariant(params.linkId, `params.linkId is required`);
-  var dom, screenshot, inspectedLink, inspectionReport;
-  var domErr, screenshotErr, inspectedLinkErr, inspectionReportErr;
+
+  let dom, screenshot, inspectedLink, inspectionReport;
+  let domErr = {},
+    screenshotErr = {},
+    inspectedLinkErr,
+    inspectionReportErr;
+
+  [screenshot, dom] = await Promise.all([
+    getScreenshot(decodeURIComponent(params.linkId)).catch(
+      (err) => (screenshotErr = err)
+    ),
+    getDom(decodeURIComponent(params.linkId))
+      .then((d) => {
+        if (d.error) {
+          throw Error(d.error);
+        }
+        return d;
+      })
+      .catch((err) => (domErr = err)),
+  ]);
 
   try {
     inspectedLink = (await getInspectedLink(params.linkId)) as InspectedLink;
   } catch (error) {
     inspectedLinkErr = error;
-  }
-  try {
-    screenshot = await getScreenshot(decodeURIComponent(params.linkId));
-  } catch (error) {
-    screenshotErr = error;
-  }
-  try {
-    dom = await getDom(decodeURIComponent(params.linkId));
-    if (dom.error) {
-      domErr = dom;
-      dom = undefined;
-    }
-  } catch (error) {
-    domErr = error;
   }
 
   if (inspectedLink && inspectedLink.status === "processed") {
@@ -88,6 +92,7 @@ export const loader = async ({ params }: LoaderArgs) => {
       domErr,
     });
   }
+
   const pipeline = [
     {
       $match: {
@@ -103,8 +108,6 @@ export const loader = async ({ params }: LoaderArgs) => {
 
   inspectedLink = await getInspectedLink(decodeURIComponent(params.linkId));
   changeStream?.close();
-  // inspectionReport = await getReport(inspectedLink.report as string);
-  // console.log(inspectionReport);
 
   try {
     inspectionReport = await getReport(

@@ -3,11 +3,10 @@ import { useState } from "react";
 
 type Props = { dom?: any; domErr: any };
 export default function DomAnalysis({ dom, domErr }: Props) {
-  console.log(dom,domErr)
   const [selectedBtn, setSelectedBtn] = useState("all");
   return (
     <Box borderWidth="1px" borderRadius="lg" bg="black" color="white">
-      {domErr ? (
+      {!dom ? (
         <Text color="red" p="6" h="40vh">
           Error retrieving dom:
           {JSON.stringify(domErr)}
@@ -29,7 +28,7 @@ export default function DomAnalysis({ dom, domErr }: Props) {
               mr="4"
               onClick={(e) => setSelectedBtn("input")}
             >
-              {dom!.suspicious_inputs ? dom!.suspicious_inputs.length : 0}
+              {dom!.suspicious_inputs ? dom!.suspicious_inputs.length : 0}{" "}
               Suspicious Input Fields
             </Button>
             <Button
@@ -37,7 +36,8 @@ export default function DomAnalysis({ dom, domErr }: Props) {
               colorScheme="purple"
               onClick={(e) => setSelectedBtn("xss")}
             >
-              {dom!.xss_attempts?dom!.xss_attempts.length:0} Potential XSS attempts
+              {dom!.xss_attempts ? dom!.xss_attempts.length : 0} Potential XSS
+              attempts
             </Button>
           </Flex>
           <pre>
