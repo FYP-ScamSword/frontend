@@ -43,17 +43,16 @@ import { useToast } from "@chakra-ui/react";
 import { type ActionFunction } from "@remix-run/server-runtime";
 
 export const loader = async ({ params }: LoaderArgs) => {
-  await connectToDatabase();
-
   invariant(params.linkId, `params.linkId is required`);
 
-  let dom, screenshot, inspectedLink, inspectionReport;
+  let dom, screenshot, inspectedLink, inspectionReport, db;
   let domErr = {},
     screenshotErr = {},
     inspectedLinkErr,
     inspectionReportErr;
 
-  [screenshot, dom] = await Promise.all([
+  [db, screenshot, dom] = await Promise.all([
+    connectToDatabase(),
     getScreenshot(decodeURIComponent(params.linkId)).catch(
       (err) => (screenshotErr = err)
     ),
@@ -72,7 +71,20 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectedLinkErr = error;
   }
-
+  if (inspectedLink && inspectedLink.status === "error") {
+    inspectedLinkErr = {"error":"error"};
+    inspectedLink = undefined;
+    return json({
+      inspectedLink,
+      inspectedLinkErr,
+      inspectionReport,
+      inspectionReportErr,
+      screenshot,
+      screenshotErr,
+      dom,
+      domErr,
+    });
+  }
   if (inspectedLink && inspectedLink.status === "processed") {
     try {
       inspectionReport = await getReport(
@@ -97,7 +109,6 @@ export const loader = async ({ params }: LoaderArgs) => {
     {
       $match: {
         original_url: decodeURIComponent(params.linkId),
-        status: "processing",
       },
     },
   ];
