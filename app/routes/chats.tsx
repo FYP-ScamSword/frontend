@@ -31,9 +31,11 @@ export const loader = async () => {
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
   return (
-    <Box overflowY="hidden">
+    <Box>
       <Grid
+        overflowY="hidden"
         h="calc(100vh - 60px)"
+        position="relative"
         templateRows="repeat(1, 1fr)"
         templateColumns="repeat(10, 1fr)"
         gap={0}
@@ -92,7 +94,10 @@ export default function Chats() {
 
                       <Text fontSize="md" isTruncated>
                         {chat.latest_message?.substring(0, 20) +
-                          (chat.latest_message && chat.latest_message.length > 20 ? "..." : "")}
+                          (chat.latest_message &&
+                          chat.latest_message.length > 20
+                            ? "..."
+                            : "")}
                       </Text>
                     </Flex>
                   </Flex>
