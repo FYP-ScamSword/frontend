@@ -33,7 +33,7 @@ import {
 import { useLoaderData, useParams, Form } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { collections, connectToDatabase } from "~/server/mongodb/conn";
+import { connectToDatabase } from "~/server/mongodb/conn";
 import Information from "./Information";
 import type InspectedLink from "~/server/models/InspectedLink";
 import Report from "./Report";
@@ -45,34 +45,46 @@ import { type ActionFunction } from "@remix-run/server-runtime";
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.linkId, `params.linkId is required`);
 
-  let dom, screenshot, inspectedLink, inspectionReport, db;
+  let decodedLink = decodeURIComponent(params.linkId);
+  let dom, screenshot, inspectedLink, inspectionReport;
   let domErr = {},
     screenshotErr = {},
     inspectedLinkErr,
     inspectionReportErr;
-
-  [db, screenshot, dom] = await Promise.all([
+  const promises = [
     connectToDatabase(),
-    getScreenshot(decodeURIComponent(params.linkId)).catch(
-      (err) => (screenshotErr = err)
-    ),
-    getDom(decodeURIComponent(params.linkId))
-      .then((d) => {
-        if (d.error) {
-          throw Error(d.error);
-        }
-        return d;
-      })
-      .catch((err) => (domErr = err)),
-  ]);
+    getScreenshot(decodedLink),
+    getDom(decodedLink),
+  ];
+
+  const [, screenshotRes, domRes] = await Promise.allSettled(promises);
+  if (screenshotRes.status === "fulfilled") {
+    screenshot = screenshotRes.value;
+  } else {
+    screenshotErr = screenshotRes.reason;
+  }
+  if (domRes.status === "fulfilled") {
+    dom = domRes.value;
+  } else {
+    domErr = domRes.reason;
+  }
 
   try {
-    inspectedLink = (await getInspectedLink(params.linkId)) as InspectedLink;
+    while (
+      !(
+        inspectedLink &&
+        (inspectedLink.status === "processed" ||
+          inspectedLink.status === "error")
+      )
+    ) {
+      inspectedLink = (await getInspectedLink(params.linkId)) as InspectedLink;
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // wait for 1 second
+    }
   } catch (error) {
     inspectedLinkErr = error;
   }
   if (inspectedLink && inspectedLink.status === "error") {
-    inspectedLinkErr = {"error":"error"};
+    inspectedLinkErr = { error: "error" };
     inspectedLink = undefined;
     return json({
       inspectedLink,
@@ -85,40 +97,6 @@ export const loader = async ({ params }: LoaderArgs) => {
       domErr,
     });
   }
-  if (inspectedLink && inspectedLink.status === "processed") {
-    try {
-      inspectionReport = await getReport(
-        (inspectedLink as InspectedLink).report as string
-      );
-    } catch (error) {
-      inspectionReportErr = error;
-    }
-    return json({
-      inspectedLink,
-      inspectedLinkErr,
-      inspectionReport,
-      inspectionReportErr,
-      screenshot,
-      screenshotErr,
-      dom,
-      domErr,
-    });
-  }
-
-  const pipeline = [
-    {
-      $match: {
-        original_url: decodeURIComponent(params.linkId),
-      },
-    },
-  ];
-  const changeStream = collections.inspectedLinks?.watch(pipeline, {
-    fullDocument: "updateLookup",
-  });
-  await changeStream!.next();
-
-  inspectedLink = await getInspectedLink(decodeURIComponent(params.linkId));
-  changeStream?.close();
 
   try {
     inspectionReport = await getReport(
@@ -180,7 +158,7 @@ export default function InspectSlug() {
         <Flex my={8}>
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          {inspectedLink.num_flags == 0 ? (
+          {inspectedLink && inspectedLink.num_flags == 0 ? (
             <Button h="2rem" isDisabled>
               Report
             </Button>
@@ -239,7 +217,7 @@ export default function InspectSlug() {
                       <></>
                     )}
                     {inspectedLink!.domain_age_flag ? (
-                      inspectedLink.domain_age ? (
+                      inspectedLink!.domain_age ? (
                         <Checkbox
                           defaultChecked
                           name="evidenceCheckbox"
@@ -329,13 +307,13 @@ export default function InspectSlug() {
                     readOnly={true}
                     name="link"
                     hidden={true}
-                    defaultValue={inspectedLink.original_url}
+                    defaultValue={inspectedLink!.original_url}
                   />
                   <Input
                     readOnly={true}
                     name="registrarEmail"
                     hidden={true}
-                    defaultValue={inspectedLink.registrar_abuse_contact}
+                    defaultValue={inspectedLink!.registrar_abuse_contact}
                   />
                   <Button colorScheme="red" mr={3} onClick={onClose}>
                     Close
@@ -345,17 +323,23 @@ export default function InspectSlug() {
                     colorScheme="green"
                     mr={3}
                     onClick={() =>
-                      inspectedLink.registrar_abuse_contact
+                      inspectedLink!.registrar_abuse_contact
                         ? toast({
                             title: "Report Submitted.",
-                            description: `We've reported the malicious URL ${inspectedLink.original_url} to the registrar at ${inspectedLink.registrar_abuse_contact}.`,
+                            description: `We've reported the malicious URL ${
+                              inspectedLink!.original_url
+                            } to the registrar at ${
+                              inspectedLink!.registrar_abuse_contact
+                            }.`,
                             status: "success",
                             duration: 9000,
                             isClosable: true,
                           })
                         : toast({
                             title: "Report Failed.",
-                            description: `The malicious URL ${inspectedLink.original_url}'s registrar was not found, hence the request for takedown was not sent.`,
+                            description: `The malicious URL ${
+                              inspectedLink!.original_url
+                            }'s registrar was not found, hence the request for takedown was not sent.`,
                             status: "error",
                             duration: 9000,
                             isClosable: true,

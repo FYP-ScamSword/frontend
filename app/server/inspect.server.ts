@@ -50,12 +50,12 @@ const getLinkStatus = (decodedLink: string) => {
   return collections.inspectedLinks?.findOne(query) as unknown as InspectedLink;
 };
 
-export const getDom = async (processedUrl: String) => {
-  return await fetch(
+export const getDom = (processedUrl: string) => {
+  return fetch(
     `${process.env.SCREENSHOT_BACKEND}/scrape?url=${processedUrl}`
   ).then((res) => res.json());
 };
-export const getScreenshot = async (processedUrl: String) => {
+export const getScreenshot = async (processedUrl: string) => {
   const filename = await fetch(
     `${process.env.SCREENSHOT_BACKEND}/screenshot?url=${processedUrl}`
   )
