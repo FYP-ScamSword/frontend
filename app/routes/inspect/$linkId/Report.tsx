@@ -6,7 +6,7 @@ export default function InspectReport({
   inspectionReportErr,
 }: Props) {
   return (
-    <Box borderWidth="1px" borderRadius="lg" bg="black" color="white">
+    <Box borderWidth="1px" borderRadius="lg" bg="#19171C" color="white">
       <Box p="6" overflow="scroll" h="40vh">
         {inspectionReportErr ? (
           <Text color="red">
