@@ -7,7 +7,7 @@ export default function InspectReport({
 }: Props) {
   return (
     <Box borderWidth="1px" borderRadius="lg" bg="black" color="white">
-      <Box p="6" overflow="scroll" maxH="40vh">
+      <Box p="6" overflow="scroll" h="40vh">
         {inspectionReportErr ? (
           <Text color="red">
             Error retrieving inspection report{" "}

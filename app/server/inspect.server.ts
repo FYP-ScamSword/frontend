@@ -53,13 +53,23 @@ const getLinkStatus = (decodedLink: string) => {
 export const getDom = (processedUrl: string) => {
   return fetch(
     `${process.env.SCREENSHOT_BACKEND}/scrape?url=${processedUrl}`
-  ).then((res) => res.json());
+  ).then((res) => {
+    if (res.status === 200) return res.json();
+    else {
+      if (res.status === 500) throw "Site not alive";
+    }
+  });
 };
 export const getScreenshot = async (processedUrl: string) => {
   const filename = await fetch(
     `${process.env.SCREENSHOT_BACKEND}/screenshot?url=${processedUrl}`
   )
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 200) return res.json();
+      else {
+        if (res.status === 500) throw "Screenshot not available";
+      }
+    })
     .then((data) => data.filename);
   return handleDownload(process.env.S3_SCREENSHOOT_BUCKET!, filename);
 };

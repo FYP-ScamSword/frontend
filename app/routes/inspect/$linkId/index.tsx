@@ -41,16 +41,14 @@ import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
 import { useToast } from "@chakra-ui/react";
 import { type ActionFunction } from "@remix-run/server-runtime";
+import DeadSiteBanner from "./DeadSiteBanner";
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.linkId, `params.linkId is required`);
 
   let decodedLink = decodeURIComponent(params.linkId);
   let dom, screenshot, inspectedLink, inspectionReport;
-  let domErr = {},
-    screenshotErr = {},
-    inspectedLinkErr,
-    inspectionReportErr;
+  let domErr, screenshotErr, inspectedLinkErr, inspectionReportErr;
   const promises = [
     connectToDatabase(),
     getScreenshot(decodedLink),
@@ -68,7 +66,6 @@ export const loader = async ({ params }: LoaderArgs) => {
   } else {
     domErr = domRes.reason;
   }
-
   try {
     while (
       !(
@@ -134,8 +131,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function InspectSlug() {
-  // const { inspectedLink } =
-  //   useLoaderData<typeof loader>();
   const { linkId } = useParams();
   const {
     inspectedLink,
@@ -158,15 +153,13 @@ export default function InspectSlug() {
         <Flex my={8}>
           <Text fontSize="xl">{linkId}</Text>
           <Spacer />
-          {inspectedLink && inspectedLink.num_flags == 0 ? (
-            <Button h="2rem" isDisabled>
-              Report
-            </Button>
-          ) : (
-            <Button h="2rem" onClick={onOpen}>
-              Report
-            </Button>
-          )}
+          <Button
+            h="2rem"
+            isDisabled={inspectedLink && inspectedLink.num_flags == 0}
+            onClick={onOpen}
+          >
+            Report
+          </Button>
           <Modal
             closeOnOverlayClick={false}
             isOpen={isOpen}
@@ -353,6 +346,7 @@ export default function InspectSlug() {
             </ModalContent>
           </Modal>
         </Flex>
+        {domErr || (dom && !dom.alive) ? <DeadSiteBanner /> : null}
         <Flex minWidth="max-content">
           <Information
             inspectedLink={inspectedLink}
