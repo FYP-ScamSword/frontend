@@ -13,13 +13,16 @@ import {
   Stack,
   Center,
   SimpleGrid,
+  Link,
 } from "@chakra-ui/react";
 import image from "~/assets/shield.png";
 import daysIcon from "~/assets/days-icon.png";
 import shieldIcon from "~/assets/shield-icon.png";
 import alertIcon from "~/assets/alert-icon.png";
 import appScreenshot1 from "~/assets/app-screenshot-2.png";
-import grey from "~/assets/grey.png";
+import socialPreviewFrontend from "~/assets/social-preview-frontend.jpg";
+import socialPreviewScamChat from "~/assets/social-preview-scam-chat.jpg";
+import socialPreviewSiteInspection from "~/assets/social-preview-site-inspection.jpg";
 
 export default function Landing() {
 
@@ -31,10 +34,16 @@ export default function Landing() {
             Help to Fight Scams
           </Heading>
           <Text>
-            Some useful statistics like everyday how many Singaporeans are
-            scammed, how much money lost etc etc
+            In Singapore, scams are increasingly prevalent on various platforms such as Telegram, WhatsApp & Instagram.
           </Text>
-          <Button mt={8} bgColor="#458DC8" color="white" w={177} h={42} _hover={{bgColor:"#397CB2"}}>Learn How</Button>
+          <Text mt={5}>
+            ScamSword attempts to tackle scams in Singapore through offensive strategies to gather intel from scam messages.
+          </Text>
+          <Link _hover={{textDecoration: "none"}} isExternal href="https://www.straitstimes.com/singapore/scam-victims-in-s-pore-lost-6607-million-in-2022-almost-13-billion-in-past-two-years">
+            <Button mt={8} bgColor="#458DC8" color="white" w={177} h={42} _hover={{bgColor:"#397CB2"}}>
+                Read More
+            </Button>
+          </Link>
         </Box>
         <Spacer />
         <Box boxSize="md" display={{ base: "none", lg: "flex" }}>
@@ -47,10 +56,10 @@ export default function Landing() {
           <Spacer/>
           <Box maxW="md">
             <Heading size="lg" mb={2}>
-              1,000+ days
+              S$660.7m
             </Heading>
             <Text fontSize="sm">
-              Time wasted on scamming scammers? 
+              lost in 2022, as compared to 632m in 2021
             </Text>
           </Box>
         </Flex>
@@ -59,10 +68,10 @@ export default function Landing() {
           <Spacer/>
           <Box maxW="md">
             <Heading size="lg" mb={2}>
-              2
+              &gt; 53%
             </Heading>
             <Text fontSize="sm">
-              Useful Statistics on something useful
+              of the victims were between 20-39 years old
             </Text>
           </Box>
         </Flex>
@@ -71,10 +80,10 @@ export default function Landing() {
           <Spacer/>
           <Box maxW="md">
             <Heading size="lg" mb={2}>
-              100+
+              7,097
             </Heading>
             <Text fontSize="sm">
-              Scam/phishing links reported & taken down
+              phishing scam cases in 2022, a 41.3% spike from 2021
             </Text>
           </Box>
         </Flex>
@@ -100,7 +109,7 @@ export default function Landing() {
                 <ChatIcon color='blackAlpha.900' boxSize={5} mr={6} />
                 <Stack>
                   <Heading size="sm">Chat Anonymously with Scammers</Heading>
-                  <Text fontSize="xs">Neque porro quisquam est qui dolorem ipsum quia dolor</Text>
+                  <Text fontSize="xs">Chat with scammers through canary accounts at no risks</Text>
                 </Stack>
               </Flex>
             </CardBody>
@@ -117,8 +126,8 @@ export default function Landing() {
               <Flex alignItems="center">
                 <Search2Icon color='blackAlpha.900' boxSize={5} mr={6} />
                 <Stack>
-                  <Heading size="sm">Inspect Suspicious Links</Heading>
-                  <Text fontSize="xs">Received suspicious links? Verify it through ScamSword</Text>
+                  <Heading size="sm">Taking down Suspicious Sites</Heading>
+                  <Text fontSize="xs">Inspect suspicious links & report them to authorities</Text>
                 </Stack>
               </Flex>
             </CardBody>
@@ -136,7 +145,7 @@ export default function Landing() {
                 <CalendarIcon color='blackAlpha.900' boxSize={5} ml={2} mr={6} />
                 <Stack>
                   <Heading size="sm">View Recent Trends</Heading>
-                  <Text fontSize="xs">Learn about the latest scam techniques  </Text>
+                  <Text fontSize="xs">Learn more about the latest trends through analytics</Text>
                 </Stack>
               </Flex>
             </CardBody>
@@ -150,13 +159,13 @@ export default function Landing() {
       <Box h={10}></Box>
       <Flex flexDirection="column">
         <Center>
-          <Heading textAlign="center" mb={3}>Read Our Resources</Heading>
+          <Heading textAlign="center" mb={3}>GitHub Repositories</Heading>
         </Center>
         <Center>
-          <Text w={300} textAlign="center" fontSize="sm">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...</Text>
+          <Text w={300} textAlign="center" fontSize="sm">Take a look to find out more!</Text>
         </Center>
       </Flex>
-      <Flex alignItems="center" mt={5} mb={40}>
+      <Flex alignItems="center" mt={5} mb={40}>    
         <Card 
           maxW='sm' 
           mr={10} 
@@ -164,18 +173,20 @@ export default function Landing() {
           bgColor="transparent"
           _hover={{boxShadow: 'md',}}
         >
-          <CardBody>
-            <Image
-              src={grey}
-              borderRadius='md'
-            />
-            <Flex mt={3}>
-              <Text color="blackAlpha.700" fontSize="sm">Topic</Text>
-              <Spacer />
-              <Text color="blackAlpha.700" fontSize="sm">24 Jan 2023</Text>
-            </Flex>
-            <Heading size="sm" mt={2}>Neque porro quisquam est qui dolorem ipsum quia </Heading>
-          </CardBody>
+          <Link href="https://github.com/FYP-ScamSword/frontend" isExternal _hover={{textDecoration: "none"}}>
+            <CardBody>
+              <Image
+                src={socialPreviewFrontend}
+                borderRadius='md'
+              />
+              <Flex mt={3}>
+                <Text color="blackAlpha.700" fontSize="xs">Frontend - Chakra UI, Remix</Text>
+                <Spacer />
+                <Text color="blackAlpha.700" fontSize="xs">11 Feb 2023</Text>
+              </Flex>
+              <Heading size="sm" mt={2}>ScamSword - Frontend</Heading>
+            </CardBody>
+          </Link>
         </Card>
         <Spacer />
         <Card 
@@ -185,19 +196,21 @@ export default function Landing() {
           bgColor="transparent"
           _hover={{boxShadow: 'md',}}
         >
-          <CardBody>
-            <Image
-              src={grey}
-              borderRadius='md'
-            />
-            <Flex mt={3}>
-              <Text color="blackAlpha.700" fontSize="sm">Topic</Text>
-              <Spacer />
-              <Text color="blackAlpha.700" fontSize="sm">24 Jan 2023</Text>
-            </Flex>
-            <Heading size="sm" mt={2}>Neque porro quisquam est qui dolorem ipsum quia </Heading>
-          </CardBody>
-        </Card>
+          <Link href="https://github.com/FYP-ScamSword/site-inspect" isExternal _hover={{textDecoration: "none"}}>
+            <CardBody>
+              <Image
+                src={socialPreviewSiteInspection}
+                borderRadius='md'
+              />
+              <Flex mt={3}>
+                <Text color="blackAlpha.700" fontSize="xs">Site Inspect - ExpressJS, Python</Text>
+                <Spacer />
+                <Text color="blackAlpha.700" fontSize="xs">25 Feb 2023</Text>
+              </Flex>
+              <Heading size="sm" mt={2}>ScamSword - Site Inspect</Heading>
+            </CardBody>
+          </Link>
+        </Card>    
         <Spacer />
         <Card 
           maxW='sm' 
@@ -206,18 +219,20 @@ export default function Landing() {
           bgColor="transparent"
           _hover={{boxShadow: 'md',}}
         >
-          <CardBody>
-            <Image
-              src={grey}
-              borderRadius='md'
-            />
-            <Flex mt={3}>
-              <Text color="blackAlpha.700" fontSize="sm">Topic</Text>
-              <Spacer />
-              <Text color="blackAlpha.700" fontSize="sm">24 Jan 2023</Text>
-            </Flex>
-            <Heading size="sm" mt={2}>Neque porro quisquam est qui dolorem ipsum quia </Heading>
-          </CardBody>
+          <Link href="https://github.com/FYP-ScamSword/scam-chat" isExternal _hover={{textDecoration: "none"}}>
+            <CardBody>
+              <Image
+                src={socialPreviewFrontend}
+                borderRadius='md'
+              />
+              <Flex mt={3}>
+                <Text color="blackAlpha.700" fontSize="xs">Scam Chat - ExpressJS, GramJS</Text>
+                <Spacer />
+                <Text color="blackAlpha.700" fontSize="xs">15 Mar 2023</Text>
+              </Flex>
+              <Heading size="sm" mt={2}>ScamSword - Scam Chat</Heading>
+            </CardBody>
+          </Link>
         </Card>
       </Flex>
     </Container>
