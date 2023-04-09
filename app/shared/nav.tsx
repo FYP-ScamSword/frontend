@@ -23,14 +23,13 @@ export default function Nav() {
       <Flex
         bg={useColorModeValue("white", "gray.800")}
         color={useColorModeValue("gray.600", "white")}
-        minH={"60px"}
+        h="60px"
         py={{ base: 2 }}
         px={{ base: 48 }}
         borderBottom={1}
         borderStyle={"solid"}
         borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
-        position="static"
       >
         <Flex
           flex={{ base: 1, md: "auto" }}
