@@ -20,6 +20,7 @@ export default function LandingForm() {
   const errors = data?.errors;
   const [link, setLink] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  
   return (
     <Flex alignItems="center">
       <Box maxW="md">
@@ -46,7 +47,14 @@ export default function LandingForm() {
               onChange={(e) => setLink(e.target.value)}
             />
             <InputRightElement width="6.75rem">
-              <Button h="2rem" mr=".25rem" bgColor="#458DC8" color="white" w={145} _hover={{bgColor:"#397CB2"}}  type="submit" isLoading={submitted}>
+              <Button
+                h="2rem"
+                bgColor="#458DC8"
+                color="white"
+                _hover={{ bgColor: "#397CB2" }}
+                type="submit"
+                isLoading={submitted}
+              >
                 Inspect
               </Button>
             </InputRightElement>
