@@ -37,16 +37,15 @@ export default function Chats() {
         overflowY="hidden"
         h="calc(100vh - 60px)"
         position="relative"
-        templateRows="repeat(1, 1fr)"
         templateColumns="repeat(10, 1fr)"
         gap={0}
       >
         <GridItem
-          rowSpan={1}
           colSpan={3}
-          p="10"
+          p="8"
           borderRight="1px"
           borderColor="gray.200"
+          overflowY="scroll"
         >
           <Heading size="lg">Chat with Scammers!</Heading>
           <Image src={image} pb="5" />
@@ -56,7 +55,7 @@ export default function Chats() {
             2. Do not click on any suspicious links or download any attachments.
           </Text>
             <Text fontSize="sm">
-              Any links in the chat will be sent to inspection. Clicking on the
+              Links in the chat will be sent to inspection. Clicking on the
               link will redirect you to the inspection page
             </Text>
           <Text pt="5">
@@ -66,7 +65,6 @@ export default function Chats() {
         </GridItem>
 
         <GridItem
-          rowSpan={1}
           colSpan={2}
           borderRight="1px"
           borderColor="gray.200"
@@ -78,8 +76,8 @@ export default function Chats() {
                 <Box
                   h="80px"
                   borderBottom="1px"
-                  bg={isActive ? "blue.100" : ""}
-                  _hover={isActive ? {} : { bg: "blue.50" }}
+                  bg={isActive ? "gray.100" : ""}
+                  _hover={isActive ? {} : { bg: "gray.50" }}
                   borderBottomColor="gray.200"
                   p="4"
                 >
@@ -115,7 +113,7 @@ export default function Chats() {
             </NavLink>
           ))}
         </GridItem>
-        <GridItem rowSpan={1} colSpan={5}>
+        <GridItem colSpan={5}>
           {/* Individual Chat area */}
           <Outlet />
         </GridItem>
