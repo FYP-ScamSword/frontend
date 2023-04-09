@@ -45,3 +45,22 @@ export const fetchSuggestedResponses = async (input: string) => {
   //   console.error("Dialogflow error:", err);
   // });
 };
+
+export const sendMessage = async (
+  phone_num: string,
+  chat_id: string,
+  message: string
+) => {
+  return await fetch(`${process.env.SCAMCHAT_BACKEND}/msg/sendTele`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      phone_num: phone_num,
+      chat_id: chat_id,
+      text: message,
+    }),
+  }).then((res) => console.log(res));
+};
