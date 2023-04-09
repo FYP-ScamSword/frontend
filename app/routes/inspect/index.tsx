@@ -1,4 +1,4 @@
-import { Box,Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 import RecentReports from "~/components/inspect/RecentReports";
 import LandingForm from "~/components/inspect/LandingForm";
 import Nav from "~/shared/nav";
@@ -7,9 +7,9 @@ import { inspectLink, getRecentScans } from "~/server/inspect.server";
 import { useLoaderData } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
 import { connectToDatabase } from "~/server/mongodb/conn";
-import InspectedLink from "~/server/models/InspectedLink";
+import type InspectedLink from "~/server/models/InspectedLink";
 
-export const loader = async ({params}:LoaderArgs) => {
+export const loader = async ({ params }: LoaderArgs) => {
   await connectToDatabase();
 
   let recentScans: InspectedLink[] = [];
@@ -23,7 +23,7 @@ export const loader = async ({params}:LoaderArgs) => {
 
   return json({
     recentScans,
-    recentScansErr
+    recentScansErr,
   });
 };
 
@@ -40,8 +40,8 @@ export const action: ActionFunction = async ({ request }) => {
       },
     };
   }
+  inspectLink(link! as string);
 
-  await inspectLink(link as string);
   return redirect(`/inspect/${encodeURIComponent(link as string)}`);
 };
 
@@ -52,7 +52,10 @@ export default function Inspect() {
     <Box>
       <Container maxW="container.lg" mt={16}>
         <LandingForm />
-        <RecentReports recentScans={recentScans} recentScansErr={recentScansErr} />
+        <RecentReports
+          recentScans={recentScans}
+          recentScansErr={recentScansErr}
+        />
       </Container>
     </Box>
   );

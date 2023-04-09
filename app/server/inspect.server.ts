@@ -1,4 +1,4 @@
-import InspectedLink from "./models/InspectedLink";
+import type InspectedLink from "./models/InspectedLink";
 import { collections } from "./mongodb/conn";
 import AWS from "aws-sdk";
 
@@ -8,7 +8,6 @@ AWS.config.update({
   region: "us-east-1",
 });
 export const inspectLink = async (link: string) => {
-  console.log(link)
   return await fetch(`${process.env.LINK_INSPECTION_BACKEND}/api/linkinspect`, {
     method: "POST",
     headers: {
@@ -17,11 +16,7 @@ export const inspectLink = async (link: string) => {
     },
     body: JSON.stringify({ inspectURL: link }),
   })
-    .then((response) => {
-      console.log(response)
-      return response.json();
-    })
-    .then((data) => data)
+    .then((res) => res.json())
     .catch((err) => console.error(err));
 };
 
@@ -43,30 +38,43 @@ export const getReport = async (reportName: string) => {
 };
 
 export const getRecentScans = async () => {
-  return await collections.inspectedLinks?.find({}).sort({ "updatedAt": -1 }).limit(5).toArray() as unknown as InspectedLink[];
-}
+  return (await collections.inspectedLinks
+    ?.find({})
+    .sort({ updatedAt: -1 })
+    .limit(5)
+    .toArray()) as unknown as InspectedLink[];
+};
 
 const getLinkStatus = (decodedLink: string) => {
   const query = { original_url: decodedLink };
   return collections.inspectedLinks?.findOne(query) as unknown as InspectedLink;
 };
 
-export const getDom = async (processedUrl: String) => {
-  return await fetch(
+export const getDom = (processedUrl: string) => {
+  return fetch(
     `${process.env.SCREENSHOT_BACKEND}/scrape?url=${processedUrl}`
-  ).then((res) => res.json());
+  ).then((res) => {
+    if (res.status === 200) return res.json();
+    else {
+      if (res.status === 500) throw "Site not alive";
+    }
+  });
 };
-export const getScreenshot = async (processedUrl: String) => {
+export const getScreenshot = async (processedUrl: string) => {
   const filename = await fetch(
     `${process.env.SCREENSHOT_BACKEND}/screenshot?url=${processedUrl}`
   )
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === 200) return res.json();
+      else {
+        if (res.status === 500) throw "Screenshot not available";
+      }
+    })
     .then((data) => data.filename);
   return handleDownload(process.env.S3_SCREENSHOOT_BUCKET!, filename);
 };
 
 const handleDownload = (bucket: string, key: string) => {
-  console.log(bucket, key);
   if (key.length == 0) return "";
   const s3 = new AWS.S3();
 
@@ -78,11 +86,13 @@ const handleDownload = (bucket: string, key: string) => {
   });
 };
 
-export const sendTakedownEmail = async (url: string, destEmail: string, evidences: string) => {
+export const sendTakedownEmail = async (
+  url: string,
+  destEmail: string,
+  evidences: string
+) => {
   // url in index.tsx is ${inspectedLink.original_url}
   // dest email is ${inspectedLink.registrar_abuse_contact}? note that it may be null if the website's who is lookup failed or smth
-  console.log("SENDTAKENDOWN EMAIL: " + url)
-  console.log(destEmail)
   const evidenceArray = evidences.split(",");
 
   var evidenceStr = "<ol>";
@@ -100,21 +110,20 @@ export const sendTakedownEmail = async (url: string, destEmail: string, evidence
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      "Source": "scamsword@gmail.com",
-      "Destination": {
-        "ToAddresses": [destEmail],
-        "CcAddresses": []
+      Source: "scamsword@gmail.com",
+      Destination: {
+        ToAddresses: [destEmail],
+        CcAddresses: [],
       },
-      "Template": "template-registrar",
-      "TemplateData": {
-        "url": url,
-        "evidence": evidenceStr,
-        "contact": "scamsword@gmail.com"
-      }
+      Template: "template-registrar",
+      TemplateData: {
+        url: url,
+        evidence: evidenceStr,
+        contact: "scamsword@gmail.com",
+      },
     }),
   })
     .then((response) => {
-      console.log(response)
       return response;
     })
     .then((data) => data)

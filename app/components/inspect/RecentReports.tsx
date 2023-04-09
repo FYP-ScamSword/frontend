@@ -29,7 +29,6 @@ export default function RecentReports({
 
   const revalidator = useRevalidator();
   dayjs.extend(relativeTime)
-  console.log(recentScans)
   return (
     <div>
       <Flex mx={4} mb={4} alignItems='flex-end'>

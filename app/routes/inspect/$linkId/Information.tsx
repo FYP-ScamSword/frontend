@@ -1,8 +1,6 @@
-import { ExternalLinkIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
-  Link,
   Table,
   TableContainer,
   Tbody,
@@ -12,10 +10,9 @@ import {
   Th,
   Tfoot,
   Tooltip,
-  AvatarBadge,
 } from "@chakra-ui/react";
 
-import InspectedLink from "~/server/models/InspectedLink";
+import type InspectedLink from "~/server/models/InspectedLink";
 import {
   combolevelsquattingTooltip,
   dgaTooltip,
@@ -210,17 +207,7 @@ export default function Information({
               </Tr>
               <Tr>
                 <Td>Abuse Contact</Td>
-                <Td>
-                  <Link
-                    href={"mailto:" + inspectedLink!.registrar_abuse_contact}
-                    isExternal
-                  >
-                    {inspectedLink!.registrar_abuse_contact && (
-                      <EmailIcon mr="4" />
-                    )}
-                    {inspectedLink!.registrar_abuse_contact || "NA"}
-                  </Link>
-                </Td>
+                <Td>{inspectedLink!.registrar_abuse_contact || "NA"}</Td>
               </Tr>
             </Tbody>
             <Tfoot>
