@@ -14,7 +14,7 @@ export default function DomAnalysis({ dom, domErr }: Props) {
           {JSON.stringify(domErr)}
         </Text>
       ) : (
-        <Box p="6" overflow="scroll" maxH="40vh">
+        <Box p="6" overflow="scroll" h="50vh">
           <Flex justifyContent="end">
             <Button
               size="xs"
