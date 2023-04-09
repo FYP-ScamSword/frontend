@@ -24,6 +24,7 @@ import inspectScreennshot from "~/assets/screenshot-inspect.jpeg";
 import takedownScreennshot from "~/assets/screenshot-takedown.jpeg";
 import socialPreviewFrontend from "~/assets/social-preview-frontend.jpg";
 import socialPreviewSiteInspection from "~/assets/social-preview-site-inspection.jpg";
+import socialPreviewScamChat from "~/assets/social-preview-scam-chat.jpg";
 import { useState } from "react";
 
 export default function Landing() {
@@ -299,7 +300,7 @@ export default function Landing() {
             _hover={{ textDecoration: "none" }}
           >
             <CardBody>
-              <Image src={socialPreviewFrontend} borderRadius="md" />
+              <Image src={socialPreviewScamChat} borderRadius="md" />
               <Flex mt={3}>
                 <Text color="blackAlpha.700" fontSize="xs">
                   Scam Chat - ExpressJS, GramJS
