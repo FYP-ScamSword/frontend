@@ -27,6 +27,8 @@ import {
 import { type ActionFunction, json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { type LegacyRef, useRef, useEffect } from "react";
+import { inspectLink } from "~/server/inspect.server";
+const urlRegex = /(https?:\/\/[^\s]+)/g;
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.chatId, `params.chatId is required`);
@@ -35,6 +37,27 @@ export const loader = async ({ params }: LoaderArgs) => {
   let messagesGroupError;
   try {
     messagesGroup = await retrieveMessages("+6584355906", params.chatId);
+    messagesGroup.forEach((chat) => {
+      chat.messages.forEach((message) => {
+        if (message.text) {
+          message.text = message.text
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+          message.text = message.text.replace(urlRegex, (url) => {
+            inspectLink(url)
+            const encodedUrl = encodeURIComponent(url);
+            const inspectUrl = "/inspect/" + encodedUrl;
+            return `<a 
+            href="${inspectUrl}" 
+            target="_blank"
+            style="color:#458DC8; text-decoration:underline"  
+            onmouseover="this.style.color='#397CB2'" 
+            onmouseout="this.style.color='#458DC8'">${url}</a>`;
+          });
+        }
+      });
+    });
   } catch (error) {
     messagesGroupError = error;
   }
@@ -67,10 +90,22 @@ export default function ChatDetail() {
     messagesEndRef.current!.scrollIntoView({ block: "end", inline: "nearest" });
   };
 
+  const messageWithUser0 = messagesGroup.find(({ users }) => {
+    const user = users.find(({ type }) => type === 0);
+    return user !== undefined;
+  });
+
+  const user0 =
+    messageWithUser0 !== undefined
+      ? messageWithUser0.users.find(({ type }) => type === 0)
+      : undefined;
+
+  const firstName0 = user0 !== undefined ? user0.firstname : undefined;
+
   useEffect(() => {
     scrollToBottom();
   }, [messagesGroup]);
-  
+
   if (messagesGroupError) {
     return (
       <Text color="red">
@@ -84,13 +119,7 @@ export default function ChatDetail() {
       <Box bg="white">
         <Box h="60px" borderBottom="1px" borderBottomColor="gray.200">
           <Center h="60px">
-            <Heading fontSize="lg">
-              {messagesGroup[0]
-                ? messagesGroup[0].users.find(
-                    (firstname: any) => firstname.type === 0
-                  )?.firstname
-                : ""}
-            </Heading>
+            <Heading fontSize="lg">{firstName0}</Heading>
           </Center>
         </Box>
       </Box>
@@ -114,7 +143,7 @@ export default function ChatDetail() {
               {messageGroup.messages
                 .sort((a, b) => (a.msg_id < b.msg_id ? -1 : 1))
                 .map((message: Message) =>
-                  message.type == 0 ? (
+                  message.type === 0 ? (
                     <Flex pt="5" className="receiveMsg" key={message.msg_id}>
                       <Avatar
                         className="scammerAvatar"
@@ -122,7 +151,9 @@ export default function ChatDetail() {
                         src="https://bit.ly/dan-abramov"
                       />
                       <Box bg="#F2F2F7" p="3" w="300px" borderRadius="10">
-                        <Text>{message.text}</Text>
+                        <Text
+                          dangerouslySetInnerHTML={{ __html: message.text }}
+                        />
                         <Flex pt="1">
                           <Spacer />
                           <Text fontSize="xs">{message.time}</Text>

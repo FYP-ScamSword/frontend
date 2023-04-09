@@ -55,6 +55,10 @@ export default function Chats() {
           <Text pt="5">
             2. Do not click on any suspicious links or download any attachments.
           </Text>
+            <Text fontSize="sm">
+              Any links in the chat will be sent to inspection. Clicking on the
+              link will redirect you to the inspection page
+            </Text>
           <Text pt="5">
             3. Stay vigilant and keep an eye out for common scammer tactics like
             urgency, fear-mongering, and unsolicited offers.
