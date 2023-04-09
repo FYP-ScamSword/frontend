@@ -101,7 +101,7 @@ export default function Landing() {
           </Box>
         </Flex>
       </SimpleGrid>
-      <Flex alignItems="center" mt={40} mb={20}>
+      <Flex alignItems="center" mt={60} mb={20}>
         <Box maxW="400">
           <Heading as="h1" mb={8}>
             How Does This Work
@@ -212,8 +212,8 @@ export default function Landing() {
           />
         </Box>
       </Flex>
-      <Box h={10}></Box>
-      <Flex flexDirection="column" pt="50">
+      <Box h={180}></Box>
+      <Flex flexDirection="column">
         <Center>
           <Heading textAlign="center" mb={3}>
             GitHub Repositories
