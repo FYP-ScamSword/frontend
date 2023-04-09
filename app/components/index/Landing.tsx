@@ -102,15 +102,11 @@ export default function Landing() {
           </Box>
         </Flex>
       </SimpleGrid>
-      <Flex alignItems="center" mt={60} mb={20}>
+      <Flex alignItems="center" mt={80} mb={20}>
         <Box maxW="400">
           <Heading as="h1" mb={8}>
             How Does This Work
           </Heading>
-          <Text>
-            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet,
-            consectetur, adipisci velit...
-          </Text>
           <Card
             mt={6}
             borderRadius="xl"
@@ -213,7 +209,7 @@ export default function Landing() {
           />
         </Box>
       </Flex>
-      <Box h={180}></Box>
+      <Box h={280}></Box>
       <Flex flexDirection="column">
         <Center>
           <Heading textAlign="center" mb={3}>
