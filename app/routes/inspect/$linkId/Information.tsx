@@ -1,4 +1,3 @@
-import { ExternalLinkIcon, EmailIcon } from "@chakra-ui/icons";
 import {
   Badge,
   Box,
@@ -13,7 +12,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import InspectedLink from "~/server/models/InspectedLink";
+import type InspectedLink from "~/server/models/InspectedLink";
 import {
   combolevelsquattingTooltip,
   dgaTooltip,

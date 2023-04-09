@@ -156,9 +156,5 @@ const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Link Inspector",
     href: "/inspect",
-  },
-  {
-    label: "Report",
-    href: "/report",
-  },
+  }
 ];
