@@ -19,12 +19,15 @@ import image from "~/assets/shield.png";
 import daysIcon from "~/assets/days-icon.png";
 import shieldIcon from "~/assets/shield-icon.png";
 import alertIcon from "~/assets/alert-icon.png";
-import appScreenshot1 from "~/assets/app-screenshot-2.png";
+import chatScreenshot from "~/assets/screenshot-chat.jpeg";
+import inspectScreennshot from "~/assets/screenshot-inspect.jpeg";
+import takedownScreennshot from "~/assets/screenshot-takedown.jpeg";
 import socialPreviewFrontend from "~/assets/social-preview-frontend.jpg";
-import socialPreviewScamChat from "~/assets/social-preview-scam-chat.jpg";
 import socialPreviewSiteInspection from "~/assets/social-preview-site-inspection.jpg";
+import { useState } from "react";
 
 export default function Landing() {
+  const [currImage, setCurrImage] = useState(chatScreenshot);
   return (
     <Container maxW="container.lg" mt={40}>
       <Flex alignItems="center">
@@ -116,6 +119,8 @@ export default function Landing() {
             }}
             border="2px"
             borderColor="transparent"
+            cursor="pointer"
+            onClick={(e) => setCurrImage(chatScreenshot)}
           >
             <CardBody>
               <Flex alignItems="center">
@@ -138,6 +143,8 @@ export default function Landing() {
             }}
             border="2px"
             borderColor="transparent"
+            cursor="pointer"
+            onClick={(e) => setCurrImage(inspectScreennshot)}
           >
             <CardBody>
               <Flex alignItems="center">
@@ -160,6 +167,8 @@ export default function Landing() {
             }}
             border="2px"
             borderColor="transparent"
+            cursor="pointer"
+            onClick={(e) => setCurrImage(takedownScreennshot)}
           >
             <CardBody>
               <Flex alignItems="center">
@@ -191,17 +200,20 @@ export default function Landing() {
           zIndex={-100}
         >
           <Image
-            src={appScreenshot1}
+            src={currImage}
             boxShadow="-5px 5px 10px 1px #D9DADA"
             borderTopLeftRadius={20}
             borderBottomLeftRadius={20}
             mt={10}
             h="70vh"
+            w="50vw"
+            objectFit="cover"
+            objectPosition="left"
           />
         </Box>
       </Flex>
       <Box h={10}></Box>
-      <Flex flexDirection="column">
+      <Flex flexDirection="column" pt="50">
         <Center>
           <Heading textAlign="center" mb={3}>
             GitHub Repositories
