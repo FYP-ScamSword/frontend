@@ -5,14 +5,15 @@ import {
   Grid,
   GridItem,
   Heading,
-  SimpleGrid,
   Spacer,
   Text,
+  Image,
 } from "@chakra-ui/react";
 import { retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import image from "~/assets/chat.png";
 
 export const loader = async () => {
   let chats: Chat[] = [];
@@ -45,13 +46,17 @@ export default function Chats() {
           borderRight="1px"
           borderColor="gray.200"
         >
+          <Heading size="lg">Chat with Scammers!</Heading>
+          <Image src={image} pb="5" />
           <Heading size="md">Just a friendly reminder... 😉</Heading>
+          <Text pt="5">1. Never share any personal information</Text>
           <Text pt="5">
-            1 Never share any personal information
-            <br />
-            ajsdhaskdjhaskdskajhdksahdkashdkjahda
+            2. Do not click on any suspicious links or download any attachments.
           </Text>
-          <Text pt="5">2 Yada yada yada yada yada</Text>
+          <Text pt="5">
+            3. Stay vigilant and keep an eye out for common scammer tactics like
+            urgency, fear-mongering, and unsolicited offers.
+          </Text>
         </GridItem>
 
         <GridItem
@@ -92,7 +97,10 @@ export default function Chats() {
 
                       <Text fontSize="md" isTruncated>
                         {chat.latest_message?.substring(0, 20) +
-                          (chat.latest_message && chat.latest_message.length > 20 ? "..." : "")}
+                          (chat.latest_message &&
+                          chat.latest_message.length > 20
+                            ? "..."
+                            : "")}
                       </Text>
                     </Flex>
                   </Flex>

@@ -40,7 +40,7 @@ export default function LandingForm() {
               onChange={(e) => setLink(e.target.value)}
             />
             <InputRightElement width="6.75rem">
-              <Button h="2rem" mr=".25rem" type="submit">
+              <Button h="2rem" mr=".5rem" bgColor="#458DC8" color="white" w={145} type="submit" _hover={{bgColor:"#397CB2"}}>
                 Inspect
               </Button>
             </InputRightElement>
