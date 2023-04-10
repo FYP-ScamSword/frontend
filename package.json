@@ -5,8 +5,8 @@
   "scripts": {
     "build": "run-s build:*",
     "build:remix": "remix build",
-    "dev": "concurrently \"run-p dev:*\" \"npx mockpass --package @opengovsg/mockpass\"",
-    "dev:remix": "cross-env NODE_ENV=development binode --require ./mocks -- @remix-run/dev:remix dev",
+    "dev": "concurrently --kill-others \"run-p dev:*\" \"npx mockpass --package @opengovsg/mockpass\"",
+    "dev:remix": "cross-env NODE_ENV=development binode -- @remix-run/dev:remix dev",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "setup": "prisma generate && prisma migrate deploy && prisma db seed",
