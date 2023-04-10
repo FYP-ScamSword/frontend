@@ -4,7 +4,7 @@ import AWS from "aws-sdk";
 
 AWS.config.update({
   accessKeyId: process.env.AWS_PUBLIC_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: "us-east-1",
 });
 export const inspectLink = async (link: string) => {
