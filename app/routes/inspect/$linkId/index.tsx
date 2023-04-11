@@ -36,12 +36,14 @@ import invariant from "tiny-invariant";
 import { connectToDatabase } from "~/server/mongodb/conn";
 import Information from "./Information";
 import type InspectedLink from "~/server/models/InspectedLink";
+import type Dom from "~/server/models/Dom";
 import Report from "./Report";
 import Screenshot from "./Screenshot";
 import DomAnalysis from "./DOMAnalysis";
 import { useToast } from "@chakra-ui/react";
 import { type ActionFunction } from "@remix-run/server-runtime";
 import DeadSiteBanner from "./DeadSiteBanner";
+import SimilarFavicons from "./SimilarFavicons";
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.linkId, `params.linkId is required`);
@@ -54,7 +56,6 @@ export const loader = async ({ params }: LoaderArgs) => {
     getScreenshot(decodedLink),
     getDom(decodedLink),
   ];
-
   const [, screenshotRes, domRes] = await Promise.allSettled(promises);
   if (screenshotRes.status === "fulfilled") {
     screenshot = screenshotRes.value;
@@ -62,7 +63,7 @@ export const loader = async ({ params }: LoaderArgs) => {
     screenshotErr = screenshotRes.reason;
   }
   if (domRes.status === "fulfilled") {
-    dom = domRes.value;
+    dom = domRes.value as Dom;
   } else {
     domErr = domRes.reason;
   }
@@ -80,6 +81,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectedLinkErr = error;
   }
+
   if (inspectedLink && inspectedLink.status === "error") {
     inspectedLinkErr = { error: "error" };
     inspectedLink = undefined;
@@ -102,6 +104,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectionReportErr = error;
   }
+
   return json({
     inspectedLink,
     inspectedLinkErr,
@@ -361,6 +364,7 @@ export default function InspectSlug() {
           <TabList>
             <Tab>Report</Tab>
             <Tab>DOM</Tab>
+            <Tab>Favicons</Tab>
           </TabList>
 
           <TabPanels>
@@ -372,6 +376,9 @@ export default function InspectSlug() {
             </TabPanel>
             <TabPanel>
               <DomAnalysis dom={dom} domErr={domErr} />
+            </TabPanel>
+            <TabPanel>
+              <SimilarFavicons dom={dom} domErr={domErr} />
             </TabPanel>
           </TabPanels>
         </Tabs>

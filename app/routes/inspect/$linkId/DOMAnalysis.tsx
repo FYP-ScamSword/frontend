@@ -1,9 +1,9 @@
 import { Spacer, Box, Button, Flex, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import Highlight from 'react-highlight'
+import Highlight from "react-highlight";
+import type Dom from "~/server/models/Dom";
 
-
-type Props = { dom?: any; domErr: any };
+type Props = { dom?: Dom; domErr: any };
 export default function DomAnalysis({ dom, domErr }: Props) {
   const [selectedBtn, setSelectedBtn] = useState("all");
   return (
@@ -30,8 +30,8 @@ export default function DomAnalysis({ dom, domErr }: Props) {
               mr="4"
               onClick={(e) => setSelectedBtn("input")}
             >
-              {dom!.suspicious_inputs ? dom!.suspicious_inputs.length : 0}{" "}
-              Suspicious Input Fields
+              {dom!.suspicious_inputs ? dom!.suspicious_inputs.length : 0} Input
+              Fields
             </Button>
             <Button
               size="xs"
