@@ -65,9 +65,11 @@ export const loader = async ({ params }: LoaderArgs) => {
   }
   if (domRes.status === "fulfilled") {
     dom = domRes.value as Dom;
-    for (let favicon of dom.similar_favicon.similar_favicons) {
-      favicon.url = getFavicon(favicon.filename);
-      console.log("oi" + favicon.url);
+    if (dom) {
+      for (let favicon of dom.similar_favicon.similar_favicons) {
+        favicon.url = getFavicon(favicon.filename);
+        console.log("oi" + favicon.url);
+      }
     }
   } else {
     domErr = domRes.reason;
