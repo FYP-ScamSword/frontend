@@ -45,10 +45,15 @@ export const loader = async ({ params }: LoaderArgs) => {
             .replace(/>/g, "&gt;");
 
           message.text = message.text.replace(urlRegex, (url) => {
-            inspectLink(url)
+            try {
+              inspectLink(url);
+            } catch (error) {
+              console.error(error);
+            }
             const encodedUrl = encodeURIComponent(url);
             const inspectUrl = "/inspect/" + encodedUrl;
             return `<a 
+            title="Click to Inspect"
             href="${inspectUrl}" 
             target="_blank"
             style="color:#458DC8; text-decoration:underline"  
