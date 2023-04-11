@@ -74,6 +74,9 @@ export const getScreenshot = async (processedUrl: string) => {
   return handleDownload(process.env.S3_SCREENSHOOT_BUCKET!, filename);
 };
 
+export const getFavicon = (key:string) =>{
+  return handleDownload(process.env.S3_FAVICON_BUCKET!,key)
+}
 const handleDownload = (bucket: string, key: string) => {
   if (key.length == 0) return "";
   const s3 = new AWS.S3();

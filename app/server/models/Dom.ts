@@ -19,7 +19,8 @@ class SimilarFavicon {
 class Favicon {
   constructor(
     public name: string,
-    public url: string,
-    public distance: number
+    public filename: string,
+    public distance: number,
+    public url?: string
   ) {}
 }
