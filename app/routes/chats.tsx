@@ -8,19 +8,22 @@ import {
   Spacer,
   Text,
   Image,
+  Button,
+  IconButton,
 } from "@chakra-ui/react";
 import { retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
 import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import image from "~/assets/chat.png";
+import { AddIcon } from "@chakra-ui/icons";
 
 export const loader = async () => {
   let chats: Chat[] = [];
   let chatsError;
 
   try {
-    chats = await retrieveChats("+6584355906");
+    chats = await retrieveChats("e9d53793-13ee-79ff-6fb4-6a9914b88120");
   } catch (error) {
     chatsError = error;
   }
@@ -54,10 +57,10 @@ export default function Chats() {
           <Text pt="5">
             2. Do not click on any suspicious links or download any attachments.
           </Text>
-            <Text fontSize="sm">
-              Links in the chat will be sent to inspection. Clicking on the
-              link will redirect you to the inspection page
-            </Text>
+          <Text fontSize="sm">
+            Links in the chat will be sent to inspection. Clicking on the link
+            will redirect you to the inspection page
+          </Text>
           <Text pt="5">
             3. Stay vigilant and keep an eye out for common scammer tactics like
             urgency, fear-mongering, and unsolicited offers.
@@ -70,6 +73,18 @@ export default function Chats() {
           borderColor="gray.200"
           overflowY="scroll"
         >
+          <Flex p="4" alignItems="center" justifyContent="space-between">
+            <Text as="b">Chats</Text>
+            <IconButton
+              size="sm"
+              borderRadius="100%"
+              colorScheme="blue"
+              aria-label="Add Chat"
+              variant="outline"
+              icon={<AddIcon />}
+            />
+          </Flex>
+
           {chats.map((chat, i) => (
             <NavLink key={chat._id} to={chat.chat_id}>
               {({ isActive }) => (
