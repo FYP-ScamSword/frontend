@@ -1,6 +1,6 @@
 import * as dialogflow from "dialogflow";
-import Chat from "./models/Chat";
-import Session from "./models/Session";
+import type Chat from "./models/Chat";
+import type Session from "./models/Session";
 const projectId = "scamchatagent-txtw";
 const credentials = {
   client_email: process.env.DIALOGFLOW_CLIENT_EMAIL,

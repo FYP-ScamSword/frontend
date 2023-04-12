@@ -8,8 +8,8 @@ import {
   Spacer,
   Text,
   Image,
-  Button,
   IconButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
@@ -17,6 +17,7 @@ import { json } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import image from "~/assets/chat.png";
 import { AddIcon } from "@chakra-ui/icons";
+import AddChatModal from "~/components/chats/AddChatModel";
 
 export const loader = async () => {
   let chats: Chat[] = [];
@@ -34,8 +35,11 @@ export const loader = async () => {
 };
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box>
+      <AddChatModal isOpen={isOpen} onClose={onClose} />
       <Grid
         overflowY="hidden"
         h="calc(100vh - 60px)"
@@ -82,6 +86,7 @@ export default function Chats() {
               aria-label="Add Chat"
               variant="outline"
               icon={<AddIcon />}
+              onClick={onOpen}
             />
           </Flex>
 
