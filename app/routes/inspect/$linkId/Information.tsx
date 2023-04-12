@@ -39,7 +39,7 @@ export default function Information({
   return (
     <Box p="6">
       <Text>Information</Text>
-      {inspectedLinkErr ? (
+      {inspectedLinkErr || !inspectedLink ? (
         <Text color="red">
           Error getting information {JSON.stringify(inspectedLinkErr)}
         </Text>
