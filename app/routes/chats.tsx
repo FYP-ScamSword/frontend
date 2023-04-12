@@ -13,13 +13,18 @@ import {
 } from "@chakra-ui/react";
 import { retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import image from "~/assets/chat.png";
 import { AddIcon } from "@chakra-ui/icons";
 import AddChatModal from "~/components/chats/AddChatModel";
+import { getCurrentUser } from "~/server/auth.server";
 
 export const loader = async () => {
+  const user = getCurrentUser();
+  if(!user){
+    return redirect('/login')
+  }
   let chats: Chat[] = [];
   let chatsError;
 
