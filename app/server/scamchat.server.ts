@@ -1,4 +1,6 @@
 import * as dialogflow from "dialogflow";
+import type Chat from "./models/Chat";
+import type Session from "./models/Session";
 const projectId = "scamchatagent-txtw";
 const credentials = {
   client_email: process.env.DIALOGFLOW_CLIENT_EMAIL,
@@ -9,16 +11,33 @@ const sessionClient = new dialogflow.SessionsClient({
   credentials,
 });
 
-export const retrieveChats = async (phone_num: string) => {
-  return await fetch(
-    `${process.env.SCAMCHAT_BACKEND}/chat/get_chats/${phone_num}`
-  ).then((res) => res.json());
+export const retrieveChats = async (username: string) => {
+  const existingSessionsPromise = await fetch(
+    `${process.env.SCAMCHAT_BACKEND}/sessions/${username}`
+  );
+  const existingSessions: Session[] = await existingSessionsPromise.json();
+  const chatUrls: string[] = existingSessions.map(
+    ({ phone_num, chat_id }) =>
+      `${process.env.SCAMCHAT_BACKEND}/chat/get_by_id/${phone_num}/${chat_id}`
+  );
+  const chatPromises = await Promise.allSettled(
+    chatUrls.map((url) => fetch(url))
+  );
+  const chats: Chat[] = [];
+  for (const chatPromise of chatPromises) {
+    if (chatPromise.status === "fulfilled") {
+      chats.push((await chatPromise.value.json()) as Chat);
+    }
+    //TODO: error handling
+  }
+  return chats;
 };
 
 export const retrieveMessages = async (phone_num: string, chat_id: string) => {
-  return await fetch(
+  const response = await fetch(
     `${process.env.SCAMCHAT_BACKEND}/msg/bychatID/${phone_num}/${chat_id}`
-  ).then((res) => res.json());
+  );
+  return await response.json();
 };
 export const fetchSuggestedResponses = async (input: string) => {
   const sessionId = "1";
@@ -63,4 +82,12 @@ export const sendMessage = async (
       text: message,
     }),
   }).then((res) => console.log(res));
+};
+
+export const creatChatSession = async (username: string) => {
+  return await fetch(`${process.env.SCAMCHAT_BACKEND}/sessions/${username}`, {
+    method: "POST",
+  })
+    .then((res) => res.json())
+    .then((data) => console.log(data));
 };

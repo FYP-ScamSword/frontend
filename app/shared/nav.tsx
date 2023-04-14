@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Form, Link, useLocation } from "@remix-run/react";
 
 import {
   Box,
@@ -12,6 +12,7 @@ import {
   useBreakpointValue,
   useColorModeValue,
   useDisclosure,
+  Button,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 
@@ -73,11 +74,11 @@ export default function Nav() {
 }
 
 const DesktopNav = () => {
+  const { pathname } = useLocation();
   const linkColor = useColorModeValue("gray.600", "gray.200");
   const linkHoverColor = useColorModeValue("gray.800", "white");
-
   return (
-    <Stack direction={"row"} spacing={4}>
+    <Stack direction="row" spacing={4} alignItems="center">
       {NAV_ITEMS.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={"hover"} placement={"bottom-start"}>
@@ -98,6 +99,13 @@ const DesktopNav = () => {
           </Popover>
         </Box>
       ))}
+      {pathname.split("/")[1] === "chats" && (
+        <Form action="/" method="post">
+          <Button size="sm" type="submit" colorScheme="blue">
+            Logout
+          </Button>
+        </Form>
+      )}
     </Stack>
   );
 };
@@ -155,5 +163,5 @@ const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Link Inspector",
     href: "/inspect",
-  }
+  },
 ];

@@ -8,19 +8,29 @@ import {
   Spacer,
   Text,
   Image,
+  IconButton,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { retrieveChats } from "~/server/scamchat.server";
+import { creatChatSession, retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
-import { json } from "@remix-run/node";
+import { ActionFunction, json, redirect } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import image from "~/assets/chat.png";
+import { AddIcon } from "@chakra-ui/icons";
+import AddChatModal from "~/components/chats/AddChatModel";
+import { getCurrentUser } from "~/server/auth.server";
 
 export const loader = async () => {
+  const user = getCurrentUser();
+  if (!user) {
+    return redirect("/login");
+  }
+
   let chats: Chat[] = [];
   let chatsError;
 
   try {
-    chats = await retrieveChats("+6584355906");
+    chats = await retrieveChats(user.getUsername());
   } catch (error) {
     chatsError = error;
   }
@@ -29,10 +39,24 @@ export const loader = async () => {
     chatsError,
   });
 };
+
+export const action: ActionFunction = async () => {
+  const user = getCurrentUser();
+  if (!user) {
+    return redirect("/login");
+  }
+  await creatChatSession(user.getUsername());
+
+  return null;
+};
+
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box>
+      <AddChatModal isOpen={isOpen} onClose={onClose} />
       <Grid
         overflowY="hidden"
         h="calc(100vh - 60px)"
@@ -54,10 +78,10 @@ export default function Chats() {
           <Text pt="5">
             2. Do not click on any suspicious links or download any attachments.
           </Text>
-            <Text fontSize="sm">
-              Links in the chat will be sent to inspection. Clicking on the
-              link will redirect you to the inspection page
-            </Text>
+          <Text fontSize="sm">
+            Links in the chat will be sent to inspection. Clicking on the link
+            will redirect you to the inspection page
+          </Text>
           <Text pt="5">
             3. Stay vigilant and keep an eye out for common scammer tactics like
             urgency, fear-mongering, and unsolicited offers.
@@ -70,6 +94,19 @@ export default function Chats() {
           borderColor="gray.200"
           overflowY="scroll"
         >
+          <Flex p="4" alignItems="center" justifyContent="space-between">
+            <Text as="b">Chats</Text>
+            <IconButton
+              size="sm"
+              borderRadius="100%"
+              colorScheme="blue"
+              aria-label="Add Chat"
+              variant="outline"
+              icon={<AddIcon />}
+              onClick={onOpen}
+            />
+          </Flex>
+
           {chats.map((chat, i) => (
             <NavLink key={chat._id} to={chat.chat_id}>
               {({ isActive }) => (

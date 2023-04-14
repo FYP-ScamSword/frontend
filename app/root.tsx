@@ -10,10 +10,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { MetaFunction, LinksFunction } from "@remix-run/node"; // Depends on the runtime you choose
+import type { MetaFunction, LinksFunction, ActionFunction } from "@remix-run/node"; // Depends on the runtime you choose
 
 import { ServerStyleContext, ClientStyleContext } from "./context";
 import Nav from "./shared/nav";
+import { logout } from "./server/auth.server";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -77,6 +78,11 @@ const Document = withEmotionCache(
   }
 );
 
+export const action: ActionFunction = async () => {
+  await logout()
+
+  return null;
+};
 export default function App() {
   return (
     <Document>
