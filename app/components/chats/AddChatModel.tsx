@@ -41,7 +41,7 @@ export default function AddChatModal({ isOpen, onClose }: Props) {
             </Stack>
           </RadioGroup>
           {value === "custom" && (
-            <Form>
+            <div>
               <InputGroup>
                 <InputLeftElement
                   pointerEvents="none"
@@ -63,17 +63,16 @@ export default function AddChatModal({ isOpen, onClose }: Props) {
                 />
                 <Input type="text" placeholder="Telegram Handle" />
               </InputGroup>
-            </Form>
+            </div>
           )}
         </ModalBody>
 
         <ModalFooter>
-          <Button onClick={onClose} variant="ghost">
-            Close
-          </Button>
-          <Button colorScheme="blue" mr={3}>
-            Add
-          </Button>
+          <Form method="post" action="/chats" onSubmit={onClose}>
+            <Button colorScheme="blue" mr={3} type="submit">
+              Add
+            </Button>
+          </Form>
         </ModalFooter>
       </ModalContent>
     </Modal>

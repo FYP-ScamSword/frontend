@@ -11,9 +11,9 @@ import {
   IconButton,
   useDisclosure,
 } from "@chakra-ui/react";
-import { retrieveChats } from "~/server/scamchat.server";
+import { creatChatSession, retrieveChats } from "~/server/scamchat.server";
 import type Chat from "~/server/models/Chat";
-import { json, redirect } from "@remix-run/node";
+import { ActionFunction, json, redirect } from "@remix-run/node";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import image from "~/assets/chat.png";
 import { AddIcon } from "@chakra-ui/icons";
@@ -22,14 +22,15 @@ import { getCurrentUser } from "~/server/auth.server";
 
 export const loader = async () => {
   const user = getCurrentUser();
-  if(!user){
-    return redirect('/login')
+  if (!user) {
+    return redirect("/login");
   }
+
   let chats: Chat[] = [];
   let chatsError;
 
   try {
-    chats = await retrieveChats("e9d53793-13ee-79ff-6fb4-6a9914b88120");
+    chats = await retrieveChats(user.getUsername());
   } catch (error) {
     chatsError = error;
   }
@@ -38,6 +39,17 @@ export const loader = async () => {
     chatsError,
   });
 };
+
+export const action: ActionFunction = async () => {
+  const user = getCurrentUser();
+  if (!user) {
+    return redirect("/login");
+  }
+  await creatChatSession(user.getUsername());
+
+  return null;
+};
+
 export default function Chats() {
   const { chats, chatsError } = useLoaderData<typeof loader>();
   const { isOpen, onOpen, onClose } = useDisclosure();

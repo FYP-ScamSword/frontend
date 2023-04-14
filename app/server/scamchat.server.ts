@@ -11,9 +11,9 @@ const sessionClient = new dialogflow.SessionsClient({
   credentials,
 });
 
-export const retrieveChats = async (user_id: string) => {
+export const retrieveChats = async (username: string) => {
   const existingSessionsPromise = await fetch(
-    `${process.env.SCAMCHAT_BACKEND}/sessions/${user_id}`
+    `${process.env.SCAMCHAT_BACKEND}/sessions/${username}`
   );
   const existingSessions: Session[] = await existingSessionsPromise.json();
   const chatUrls: string[] = existingSessions.map(
@@ -26,11 +26,10 @@ export const retrieveChats = async (user_id: string) => {
   const chats: Chat[] = [];
   for (const chatPromise of chatPromises) {
     if (chatPromise.status === "fulfilled") {
-      chats.push(await chatPromise.value.json() as Chat);
+      chats.push((await chatPromise.value.json()) as Chat);
     }
     //TODO: error handling
   }
-  console.log(JSON.stringify(chats))
   return chats;
 };
 
@@ -83,4 +82,12 @@ export const sendMessage = async (
       text: message,
     }),
   }).then((res) => console.log(res));
+};
+
+export const creatChatSession = async (username: string) => {
+  return await fetch(`${process.env.SCAMCHAT_BACKEND}/sessions/${username}`, {
+    method: "POST",
+  })
+    .then((res) => res.json())
+    .then((data) => console.log(data));
 };
