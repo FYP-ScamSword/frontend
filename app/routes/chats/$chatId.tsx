@@ -176,7 +176,7 @@ export default function ChatDetail() {
       body: JSON.stringify({
         phone_num: phone_num,
         chat_id: chat_id,
-        text: input,
+        text: message,
       }),
     });
   };
