@@ -14,6 +14,7 @@ import {
   MenuItem,
   MenuList,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Form, useLoaderData } from "@remix-run/react";
@@ -33,6 +34,7 @@ import {
   useCallback,
   useState,
 } from "react";
+
 import { inspectLink } from "~/server/inspect.server";
 var CryptoJS = require("crypto-js");
 const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -123,9 +125,9 @@ export default function ChatDetail() {
 
   // const [messageGroupState, setMessageGroupState] = useState(messagesGroup);
   // console.log(messageGroupState)
+  const toast = useToast();
 
   const [newMsg, setNewMsg] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>("");
 
   const messagesEndRef: LegacyRef<HTMLDivElement> = useRef(null);
   const scrollToBottom = () => {
@@ -163,10 +165,7 @@ export default function ChatDetail() {
 
   const sendMsg = async (message: string) => {
     console.log(newMsg);
-    setNewMsg([
-      ...newMsg,
-      new Message(Math.random() + "", message, 1, "Now"),
-    ]);
+    setNewMsg([...newMsg, new Message(Math.random() + "", message, 1, "Now")]);
     await fetch(`${backend}/msg/sendTele`, {
       method: "POST",
       headers: {
@@ -180,12 +179,38 @@ export default function ChatDetail() {
       }),
     });
   };
+  function validateInput(value: string): string {
+    // email regex
+    const emailRegex = /^\S+@\S+\.\S+$/;
 
+    // Singapore phone number regex
+    const singaporePhoneRegex = /^(\+65)?[689]\d{7}$/;
+
+    // credit card regex
+    const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
+
+    // bank details regex
+    const bankDetailsRegex = /(?:\b\d{3}-\d{3}-\d{3}\b|\b\d{9}\b)/;
+
+    // check if the input matches any of the regex
+    if (value.match(emailRegex)) {
+      return "This input contains an email address.";
+    }
+    if (value.match(singaporePhoneRegex)) {
+      return "This input contains a Singapore phone number.";
+    }
+    if (value.match(creditCardRegex)) {
+      return "This input contains a credit card number.";
+    }
+    if (value.match(bankDetailsRegex)) {
+      return "This input contains bank details.";
+    }
+    return "";
+  }
   if (messagesGroupError) {
     return (
       <Text color="red">
-        Error: message cannot be retrieved{" "}
-        {JSON.stringify(messagesGroupError)}
+        Error: message cannot be retrieved {JSON.stringify(messagesGroupError)}
       </Text>
     );
   }
@@ -297,69 +322,82 @@ export default function ChatDetail() {
         </Box>
 
         {/* <Form method="post" id="msgForm" key={Math.random()} onSubmit={e=>setNewMsg([])}> */}
-          <Box
-            w="50%"
-            h="48px"
-            borderTop="1px"
-            borderTopColor="gray.200"
-            position="fixed"
-            bottom="0"
-          >
-            <InputGroup h="100%" variant="unstyled">
-              <Menu>
-                <MenuButton
-                  as={Center}
-                  width="48px"
-                  _hover={{ bg: "#D7E5F0" }}
-                  textAlign="center"
-                  borderRight="1px"
-                  borderRightColor="gray.200"
-                >
-                  <QuestionOutlineIcon />
-                </MenuButton>
-                <MenuList>
-                  {suggestedResponses.map((suggestedResponse: string) => (
-                    <MenuItem key={suggestedResponse}>
-                      <Box w="100%" mt="2" mb="2">
-                        {suggestedResponse}
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-              <Input
-                name="message"
-                h="100%"
-                id="msgInput"
-                placeholder="Make him angry..."
-                px="4"
-                onKeyDownCapture={async (e)=>{
-                  if(e.key === "Enter"){
-                    const inputElement = e.target as HTMLInputElement;
-                    await sendMsg(inputElement.value)
-                    inputElement.value=''
-                  }
-                }}
-                // value={input}
-                // onChange={(e) => setInput(e.target.value)}
-              />
-
-              <InputRightAddon
-                as={Button}
-                // onClick={(e) => {
-                //   sendMsg();
-                // }}
-                type="submit"
+        <Box
+          w="50%"
+          h="48px"
+          borderTop="1px"
+          borderTopColor="gray.200"
+          position="fixed"
+          bottom="0"
+        >
+          <InputGroup h="100%" variant="unstyled">
+            <Menu>
+              <MenuButton
+                as={Center}
                 width="48px"
                 _hover={{ bg: "#D7E5F0" }}
                 textAlign="center"
-                borderLeft="1px"
-                borderLeftColor="gray.200"
+                borderRight="1px"
+                borderRightColor="gray.200"
               >
-                <ArrowForwardIcon />
-              </InputRightAddon>
-            </InputGroup>
-          </Box>
+                <QuestionOutlineIcon />
+              </MenuButton>
+              <MenuList>
+                {suggestedResponses.map((suggestedResponse: string) => (
+                  <MenuItem key={suggestedResponse}>
+                    <Box w="100%" mt="2" mb="2">
+                      {suggestedResponse}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+            <Input
+              name="message"
+              h="100%"
+              id="msgInput"
+              placeholder="Make him angry..."
+              px="4"
+              onKeyDownCapture={async (e) => {
+                if (e.key === "Enter") {
+                  const inputElement = e.target as HTMLInputElement;
+                  const error = validateInput(inputElement.value);
+                  if (error.length !== 0) {
+                    toast({
+                      title: "Sensitive information detected",
+                      description: error,
+                      status: "warning",
+                      position:"top-right",
+                      duration: 9000,
+                      isClosable: true,
+                    });
+                    inputElement.value = "";
+                    return;
+                  }
+                  await sendMsg(inputElement.value);
+                  inputElement.value = "";
+                }
+              }}
+              // value={input}
+              // onChange={(e) => setInput(e.target.value)}
+            />
+
+            <InputRightAddon
+              as={Button}
+              // onClick={(e) => {
+              //   sendMsg();
+              // }}
+              type="submit"
+              width="48px"
+              _hover={{ bg: "#D7E5F0" }}
+              textAlign="center"
+              borderLeft="1px"
+              borderLeftColor="gray.200"
+            >
+              <ArrowForwardIcon />
+            </InputRightAddon>
+          </InputGroup>
+        </Box>
         {/* </Form> */}
       </Box>
       {/* input area */}
