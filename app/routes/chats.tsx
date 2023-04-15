@@ -20,6 +20,8 @@ import { AddIcon } from "@chakra-ui/icons";
 import AddChatModal from "~/components/chats/AddChatModel";
 import { getCurrentUser } from "~/server/auth.server";
 
+var CryptoJS = require("crypto-js");
+
 export const loader = async () => {
   const user = getCurrentUser();
   if (!user) {
@@ -34,9 +36,13 @@ export const loader = async () => {
   } catch (error) {
     chatsError = error;
   }
+
+  const key = process!.env.SESSION_SECRET;
+
   return json({
     chats,
     chatsError,
+    key,
   });
 };
 
@@ -51,7 +57,7 @@ export const action: ActionFunction = async () => {
 };
 
 export default function Chats() {
-  const { chats, chatsError } = useLoaderData<typeof loader>();
+  const { chats, chatsError, key } = useLoaderData<typeof loader>();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -108,7 +114,18 @@ export default function Chats() {
           </Flex>
 
           {chats.map((chat, i) => (
-            <NavLink key={chat._id} to={chat.chat_id}>
+            <NavLink
+              key={chat._id}
+              to={encodeURIComponent(
+                CryptoJS.AES.encrypt(
+                  JSON.stringify({
+                    phone_num: chat.phone_num,
+                    chat_id: chat.chat_id,
+                  }),
+                  key
+                ).toString()
+              )}
+            >
               {({ isActive }) => (
                 <Box
                   h="80px"

@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Form, useLoaderData } from "@remix-run/react";
-import type Message from "~/server/models/Message";
+import Message from "~/server/models/Message";
 import type MessageGroup from "~/server/models/MessageGroup";
 import {
   fetchSuggestedResponses,
@@ -26,17 +26,30 @@ import {
 } from "~/server/scamchat.server";
 import { type ActionFunction, json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { type LegacyRef, useRef, useEffect } from "react";
+import {
+  type LegacyRef,
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+} from "react";
 import { inspectLink } from "~/server/inspect.server";
+var CryptoJS = require("crypto-js");
 const urlRegex = /(https?:\/\/[^\s]+)/g;
 
 export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.chatId, `params.chatId is required`);
 
+  const bytes = CryptoJS.AES.decrypt(
+    decodeURIComponent(params.chatId),
+    process.env.SESSION_SECRET
+  );
+  var { phone_num, chat_id } = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
   let messagesGroup: MessageGroup[] = [];
   let messagesGroupError;
   try {
-    messagesGroup = await retrieveMessages("+6584355906", params.chatId);
+    messagesGroup = await retrieveMessages(phone_num, chat_id);
     messagesGroup.forEach((chat) => {
       chat.messages.forEach((message) => {
         if (message.text) {
@@ -71,7 +84,12 @@ export const loader = async ({ params }: LoaderArgs) => {
   const suggestedResponses = JSON.parse(
     suggestedResponseObject[0]!.queryResult.fulfillmentText
   );
+
+  const backend = process.env.SCAMCHAT_BACKEND;
   return json({
+    phone_num,
+    chat_id,
+    backend,
     messagesGroup,
     messagesGroupError,
     suggestedResponses,
@@ -82,13 +100,31 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const message = String(formData.get("message"));
   if (message.length > 0) {
-    await sendMessage("+6584355906", params.chatId!, message);
+    const bytes = CryptoJS.AES.decrypt(
+      decodeURIComponent(params.chatId!),
+      process.env.SESSION_SECRET
+    );
+    var { phone_num, chat_id } = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+    await sendMessage(phone_num, chat_id, message);
   }
+
   return null;
 };
 export default function ChatDetail() {
-  const { messagesGroup, messagesGroupError, suggestedResponses } =
-    useLoaderData<typeof loader>();
+  const {
+    phone_num,
+    chat_id,
+    backend,
+    messagesGroup,
+    messagesGroupError,
+    suggestedResponses,
+  } = useLoaderData<typeof loader>();
+
+  // const [messageGroupState, setMessageGroupState] = useState(messagesGroup);
+  // console.log(messageGroupState)
+
+  const [newMsg, setNewMsg] = useState<Message[]>([]);
 
   const messagesEndRef: LegacyRef<HTMLDivElement> = useRef(null);
   const scrollToBottom = () => {
@@ -100,21 +136,34 @@ export default function ChatDetail() {
     return user !== undefined;
   });
 
-  const user0 =
-    messageWithUser0 !== undefined
-      ? messageWithUser0.users.find(({ type }) => type === 0)
-      : undefined;
+  const firstName0 =
+    messageWithUser0?.users.find(({ type }) => type === 0)?.firstname ?? "";
 
-  const firstName0 = user0 !== undefined ? user0.firstname : undefined;
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`
+    );
+    eventSource.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+
+      setNewMsg((prev) => [...prev, data as Message]);
+    });
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messagesGroup]);
+  }, [messagesGroup, newMsg]);
 
   if (messagesGroupError) {
     return (
       <Text color="red">
-        Error: screenshot cannot be retrieved{" "}
+        Error: message cannot be retrieved{" "}
         {JSON.stringify(messagesGroupError)}
       </Text>
     );
@@ -187,9 +236,46 @@ export default function ChatDetail() {
                 )}
             </div>
           ))}
+          {newMsg.map((message: Message) =>
+            message.type === 0 ? (
+              <Flex pt="5" className="receiveMsg" key={message.msg_id}>
+                <Avatar
+                  className="scammerAvatar"
+                  mr="5"
+                  src="https://bit.ly/dan-abramov"
+                />
+                <Box bg="#F2F2F7" p="3" w="300px" borderRadius="10">
+                  <Text dangerouslySetInnerHTML={{ __html: message.text }} />
+                  <Flex pt="1">
+                    <Spacer />
+                    <Text fontSize="xs">{message.time}</Text>
+                  </Flex>
+                </Box>
+              </Flex>
+            ) : (
+              <Flex pt="5" className="sendMsg" key={message.msg_id}>
+                <Spacer />
+                <Box bg="#007AFF" p="3" w="300px" borderRadius="10">
+                  <Text color="white">{message.text}</Text>
+                  <Flex pt="1">
+                    <Spacer />
+                    <Text fontSize="xs" color="white">
+                      {message.time}
+                    </Text>
+                  </Flex>
+                </Box>
+                <Avatar
+                  className="userAvatar"
+                  ml="5"
+                  src="https://bit.ly/ryan-florence"
+                />
+              </Flex>
+            )
+          )}
           <Box ref={messagesEndRef} h="4"></Box>
         </Box>
-        <Form method="post" id="msgForm" key={Math.random()}>
+
+        <Form method="post" id="msgForm" key={Math.random()} onSubmit={e=>setNewMsg([])}>
           <Box
             w="50%"
             h="48px"
