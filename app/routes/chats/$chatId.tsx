@@ -125,6 +125,7 @@ export default function ChatDetail() {
   // console.log(messageGroupState)
 
   const [newMsg, setNewMsg] = useState<Message[]>([]);
+  const [input, setInput] = useState<string>("");
 
   const messagesEndRef: LegacyRef<HTMLDivElement> = useRef(null);
   const scrollToBottom = () => {
@@ -159,6 +160,26 @@ export default function ChatDetail() {
   useEffect(() => {
     scrollToBottom();
   }, [messagesGroup, newMsg]);
+
+  const sendMsg = async (message: string) => {
+    console.log(newMsg);
+    setNewMsg([
+      ...newMsg,
+      new Message(Math.random() + "", message, 1, "Now"),
+    ]);
+    await fetch(`${backend}/msg/sendTele`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phone_num: phone_num,
+        chat_id: chat_id,
+        text: input,
+      }),
+    });
+  };
 
   if (messagesGroupError) {
     return (
@@ -275,7 +296,7 @@ export default function ChatDetail() {
           <Box ref={messagesEndRef} h="4"></Box>
         </Box>
 
-        <Form method="post" id="msgForm" key={Math.random()} onSubmit={e=>setNewMsg([])}>
+        {/* <Form method="post" id="msgForm" key={Math.random()} onSubmit={e=>setNewMsg([])}> */}
           <Box
             w="50%"
             h="48px"
@@ -312,10 +333,22 @@ export default function ChatDetail() {
                 id="msgInput"
                 placeholder="Make him angry..."
                 px="4"
+                onKeyDownCapture={async (e)=>{
+                  if(e.key === "Enter"){
+                    const inputElement = e.target as HTMLInputElement;
+                    await sendMsg(inputElement.value)
+                    inputElement.value=''
+                  }
+                }}
+                // value={input}
+                // onChange={(e) => setInput(e.target.value)}
               />
 
               <InputRightAddon
                 as={Button}
+                // onClick={(e) => {
+                //   sendMsg();
+                // }}
                 type="submit"
                 width="48px"
                 _hover={{ bg: "#D7E5F0" }}
@@ -327,7 +360,7 @@ export default function ChatDetail() {
               </InputRightAddon>
             </InputGroup>
           </Box>
-        </Form>
+        {/* </Form> */}
       </Box>
       {/* input area */}
     </div>
