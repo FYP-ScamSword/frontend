@@ -147,10 +147,25 @@ export default function ChatDetail() {
       `${backend}/chat/new_msgs/${phone_num}/${chat_id}`
     );
     eventSource.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data) as Message;
       console.log(data);
-
-      setNewMsg((prev) => [...prev, data as Message]);
+      data.text = data.text.replace(urlRegex, (url) => {
+        try {
+          // inspectLink(url);
+        } catch (error) {
+          console.error(error);
+        }
+        const encodedUrl = encodeURIComponent(url);
+        const inspectUrl = "/inspect/" + encodedUrl;
+        return `<a 
+        title="Click to Inspect"
+        href="${inspectUrl}" 
+        target="_blank"
+        style="color:#458DC8; text-decoration:underline"  
+        onmouseover="this.style.color='#397CB2'" 
+        onmouseout="this.style.color='#458DC8'">${url}</a>`;
+      });
+      setNewMsg((prev) => [...prev, data]);
     });
     return () => {
       if (eventSource) {
