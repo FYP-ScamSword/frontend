@@ -17,7 +17,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
-import { Form, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import Message from "~/server/models/Message";
 import type MessageGroup from "~/server/models/MessageGroup";
 import {
@@ -31,7 +31,6 @@ import {
   type LegacyRef,
   useRef,
   useEffect,
-  useCallback,
   useState,
 } from "react";
 
@@ -60,11 +59,11 @@ export const loader = async ({ params }: LoaderArgs) => {
             .replace(/>/g, "&gt;");
 
           message.text = message.text.replace(urlRegex, (url) => {
-            try {
-              inspectLink(url);
-            } catch (error) {
-              console.error(error);
-            }
+            // try {
+            //   inspectLink(url);
+            // } catch (error) {
+            //   console.error(error);
+            // }
             const encodedUrl = encodeURIComponent(url);
             const inspectUrl = "/inspect/" + encodedUrl;
             return `<a 
@@ -143,18 +142,18 @@ export default function ChatDetail() {
     messageWithUser0?.users.find(({ type }) => type === 0)?.firstname ?? "";
 
   useEffect(() => {
+    setNewMsg([]);
+  }, [backend,phone_num, chat_id]);
+  useEffect(() => {
     const eventSource = new EventSource(
-      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`
+      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`,
+      
     );
     eventSource.addEventListener("message", (event) => {
       const data = JSON.parse(event.data) as Message;
       console.log(data);
       data.text = data.text.replace(urlRegex, (url) => {
-        try {
-          // inspectLink(url);
-        } catch (error) {
-          console.error(error);
-        }
+        inspectLink(url);
         const encodedUrl = encodeURIComponent(url);
         const inspectUrl = "/inspect/" + encodedUrl;
         return `<a 
@@ -167,12 +166,16 @@ export default function ChatDetail() {
       });
       setNewMsg((prev) => [...prev, data]);
     });
+
+    window.addEventListener("beforeunload", handleRefresh);
     return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
+      window.removeEventListener("beforeunload", handleRefresh);
     };
-  }, []);
+
+    function handleRefresh(){
+      eventSource.close()
+    }
+  }, [backend,phone_num, chat_id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -382,7 +385,7 @@ export default function ChatDetail() {
                       title: "Sensitive information detected",
                       description: error,
                       status: "warning",
-                      position:"top-right",
+                      position: "top-right",
                       duration: 9000,
                       isClosable: true,
                     });
