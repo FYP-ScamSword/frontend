@@ -57,6 +57,7 @@ export const loader = async ({ params }: LoaderArgs) => {
     getScreenshot(decodedLink),
     getDom(decodedLink),
   ];
+  console.log(1)
   const [, screenshotRes, domRes] = await Promise.allSettled(promises);
   if (screenshotRes.status === "fulfilled") {
     screenshot = screenshotRes.value;
@@ -65,7 +66,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   }
   if (domRes.status === "fulfilled") {
     dom = domRes.value as Dom;
-    if (dom) {
+    if (dom && dom.similar_favicon) {
       for (let favicon of dom.similar_favicon.similar_favicons) {
         favicon.url = getFavicon(favicon.filename);
         console.log("oi" + favicon.url);
@@ -74,6 +75,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } else {
     domErr = domRes.reason;
   }
+  console.log(2)
 
   try {
     while (
@@ -89,6 +91,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectedLinkErr = error;
   }
+  console.log(3)
 
   if (inspectedLink && inspectedLink.status === "error") {
     inspectedLinkErr = { error: "error" };
@@ -104,6 +107,7 @@ export const loader = async ({ params }: LoaderArgs) => {
       domErr,
     });
   }
+  console.log(4)
 
   try {
     inspectionReport = await getReport(
@@ -112,6 +116,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectionReportErr = error;
   }
+  console.log(5)
 
   return json({
     inspectedLink,

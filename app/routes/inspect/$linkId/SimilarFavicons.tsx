@@ -5,7 +5,7 @@ import type Dom from "~/server/models/Dom";
 type Props = { dom?: Dom; domErr: any };
 
 export default function SimilarFavicons({ dom, domErr }: Props) {
-  if (!dom)
+  if (!dom || !dom.similar_favicon)
     return (
       <Text color="red" p="6" h="40vh">
         Error retrieving dom:
