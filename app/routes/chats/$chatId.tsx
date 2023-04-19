@@ -102,7 +102,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 export default function ChatDetail() {
   const { phone_num, chat_id, backend, messagesGroup, messagesGroupError } =
     useLoaderData<typeof loader>();
-
+console.log({ phone_num, chat_id, backend, messagesGroup, messagesGroupError })
   const suggestedResponses = useActionData<typeof action>();
   const toast = useToast();
 

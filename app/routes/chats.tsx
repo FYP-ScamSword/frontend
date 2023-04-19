@@ -59,7 +59,7 @@ export const action: ActionFunction = async () => {
 export default function Chats() {
   const { chats, chatsError, key } = useLoaderData<typeof loader>();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  console.log({ chats, chatsError, key })
   return (
     <Box>
       <AddChatModal isOpen={isOpen} onClose={onClose} />
