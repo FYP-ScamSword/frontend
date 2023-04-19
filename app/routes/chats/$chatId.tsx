@@ -86,11 +86,13 @@ export const loader = async ({ params }: LoaderArgs) => {
     suggestedResponseObject[0]!.queryResult.fulfillmentText
   );
 
-  const backend = process.env.SCAMCHAT_BACKEND;
+  const chat_backend = process.env.SCAMCHAT_BACKEND;
+  const inspect_backend = process.env.LINK_INSPECTION_BACKEND;
   return json({
     phone_num,
     chat_id,
-    backend,
+    chat_backend,
+    inspect_backend,
     messagesGroup,
     messagesGroupError,
     suggestedResponses,
@@ -116,7 +118,8 @@ export default function ChatDetail() {
   const {
     phone_num,
     chat_id,
-    backend,
+    chat_backend,
+    inspect_backend,
     messagesGroup,
     messagesGroupError,
     suggestedResponses,
@@ -143,17 +146,24 @@ export default function ChatDetail() {
 
   useEffect(() => {
     setNewMsg([]);
-  }, [backend,phone_num, chat_id]);
+  }, [chat_backend,phone_num, chat_id]);
   useEffect(() => {
     const eventSource = new EventSource(
-      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`,
+      `${chat_backend}/chat/new_msgs/${phone_num}/${chat_id}`,
       
     );
     eventSource.addEventListener("message", (event) => {
       const data = JSON.parse(event.data) as Message;
       console.log(data);
       data.text = data.text.replace(urlRegex, (url) => {
-        inspectLink(url);
+        fetch(`${inspect_backend}/api/linkinspect`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ inspectURL: url }),
+        })
         const encodedUrl = encodeURIComponent(url);
         const inspectUrl = "/inspect/" + encodedUrl;
         return `<a 
@@ -175,7 +185,7 @@ export default function ChatDetail() {
     function handleRefresh(){
       eventSource.close()
     }
-  }, [backend,phone_num, chat_id]);
+  }, [chat_backend,phone_num, chat_id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -184,7 +194,7 @@ export default function ChatDetail() {
   const sendMsg = async (message: string) => {
     console.log(newMsg);
     setNewMsg([...newMsg, new Message(Math.random() + "", message, 1, "Now")]);
-    await fetch(`${backend}/msg/sendTele`, {
+    await fetch(`${chat_backend}/msg/sendTele`, {
       method: "POST",
       headers: {
         Accept: "application/json",
