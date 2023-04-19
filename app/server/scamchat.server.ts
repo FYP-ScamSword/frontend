@@ -53,16 +53,11 @@ export const fetchSuggestedResponses = async (input: string) => {
     },
   };
 
-  return await sessionClient.detectIntent(request);
-  // .then((responses) => {
-  //   const result = responses[0].queryResult;
-  //   console.log("Dialogflow response:");
-  //   console.log(JSON.parse(result.fulfillmentText));
-  //   return JSON.parse(result.fulfillmentText);
-  // })
-  // .catch((err) => {
-  //   console.error("Dialogflow error:", err);
-  // });
+  const responses = await sessionClient.detectIntent(request);
+  console.log(responses)
+  const result = responses[0].queryResult;
+  if(result.fulfillmentText === "No Results") return ["oh i see", "ok", "i see", "interesting","yes"]
+  return JSON.parse(result.fulfillmentText);
 };
 
 export const sendMessage = async (

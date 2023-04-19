@@ -17,7 +17,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import Message from "~/server/models/Message";
 import type MessageGroup from "~/server/models/MessageGroup";
 import {
@@ -27,12 +27,7 @@ import {
 } from "~/server/scamchat.server";
 import { type ActionFunction, json, type LoaderArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import {
-  type LegacyRef,
-  useRef,
-  useEffect,
-  useState,
-} from "react";
+import { type LegacyRef, useRef, useEffect, useState } from "react";
 
 import { inspectLink } from "~/server/inspect.server";
 var CryptoJS = require("crypto-js");
@@ -81,52 +76,38 @@ export const loader = async ({ params }: LoaderArgs) => {
     messagesGroupError = error;
   }
 
-  const suggestedResponseObject = await fetchSuggestedResponses("hi");
-  const suggestedResponses = JSON.parse(
-    suggestedResponseObject[0]!.queryResult.fulfillmentText
-  );
-
   const backend = process.env.SCAMCHAT_BACKEND;
+
   return json({
     phone_num,
     chat_id,
     backend,
     messagesGroup,
     messagesGroupError,
-    suggestedResponses,
   });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
-  const message = String(formData.get("message"));
-  if (message.length > 0) {
-    const bytes = CryptoJS.AES.decrypt(
-      decodeURIComponent(params.chatId!),
-      process.env.SESSION_SECRET
-    );
-    var { phone_num, chat_id } = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
-    await sendMessage(phone_num, chat_id, message);
+  const latest_msg = formData.get("latest_msg");
+  if (!latest_msg || latest_msg?.length === 0) {
+    return ["oh i see", "ok", "i see", "interesting", "yes"];
   }
-
-  return null;
+  const suggestedResponse = await fetchSuggestedResponses(
+    latest_msg! as string
+  );
+  return suggestedResponse;
 };
 export default function ChatDetail() {
-  const {
-    phone_num,
-    chat_id,
-    backend,
-    messagesGroup,
-    messagesGroupError,
-    suggestedResponses,
-  } = useLoaderData<typeof loader>();
+  const { phone_num, chat_id, backend, messagesGroup, messagesGroupError } =
+    useLoaderData<typeof loader>();
 
-  // const [messageGroupState, setMessageGroupState] = useState(messagesGroup);
-  // console.log(messageGroupState)
+  const suggestedResponses = useActionData<typeof action>();
   const toast = useToast();
 
   const [newMsg, setNewMsg] = useState<Message[]>([]);
+  // const [dialogflowResponse, setDialogflowResponse] = useState<string[]>(suggestedResponse);
 
   const messagesEndRef: LegacyRef<HTMLDivElement> = useRef(null);
   const scrollToBottom = () => {
@@ -141,17 +122,19 @@ export default function ChatDetail() {
   const firstName0 =
     messageWithUser0?.users.find(({ type }) => type === 0)?.firstname ?? "";
 
-  useEffect(() => {
-    setNewMsg([]);
-  }, [backend,phone_num, chat_id]);
+  // useEffect(() => {
+  //   setNewMsg([]);
+  // }, [backend, phone_num, chat_id]);
+
   useEffect(() => {
     const eventSource = new EventSource(
-      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`,
-      
+      `${backend}/chat/new_msgs/${phone_num}/${chat_id}`
     );
     eventSource.addEventListener("message", (event) => {
       const data = JSON.parse(event.data) as Message;
       console.log(data);
+      setNewMsg((prev) => [...prev, data]);
+
       data.text = data.text.replace(urlRegex, (url) => {
         inspectLink(url);
         const encodedUrl = encodeURIComponent(url);
@@ -164,7 +147,6 @@ export default function ChatDetail() {
         onmouseover="this.style.color='#397CB2'" 
         onmouseout="this.style.color='#458DC8'">${url}</a>`;
       });
-      setNewMsg((prev) => [...prev, data]);
     });
 
     window.addEventListener("beforeunload", handleRefresh);
@@ -172,10 +154,10 @@ export default function ChatDetail() {
       window.removeEventListener("beforeunload", handleRefresh);
     };
 
-    function handleRefresh(){
-      eventSource.close()
+    function handleRefresh() {
+      eventSource.close();
     }
-  }, [backend,phone_num, chat_id]);
+  }, [backend, phone_num, chat_id, setNewMsg]);
 
   useEffect(() => {
     scrollToBottom();
@@ -183,7 +165,11 @@ export default function ChatDetail() {
 
   const sendMsg = async (message: string) => {
     console.log(newMsg);
-    setNewMsg([...newMsg, new Message(Math.random() + "", message, 1, "Now")]);
+    setNewMsg((prev) => [
+      ...prev,
+      new Message(Math.random() + "", message, 1, "Now"),
+    ]);
+
     await fetch(`${backend}/msg/sendTele`, {
       method: "POST",
       headers: {
@@ -350,24 +336,41 @@ export default function ChatDetail() {
         >
           <InputGroup h="100%" variant="unstyled">
             <Menu>
-              <MenuButton
-                as={Center}
-                width="48px"
-                _hover={{ bg: "#D7E5F0" }}
-                textAlign="center"
-                borderRight="1px"
-                borderRightColor="gray.200"
-              >
-                <QuestionOutlineIcon />
-              </MenuButton>
+              <Form method="post">
+                <input
+                  type="hidden"
+                  name="latest_msg"
+                  value={
+                    newMsg && newMsg.length !== 0 ? newMsg.pop()!.text : ""
+                  }
+                />
+                <MenuButton
+                  as={Button}
+                  type="submit"
+                  height="48px"
+                  width="48px"
+                  borderRadius="0"
+                  background="white"
+                  _hover={{ bg: "#D7E5F0" }}
+                  textAlign="center"
+                  borderRight="1px"
+                  borderRightColor="gray.200"
+                >
+                  <QuestionOutlineIcon />
+                </MenuButton>
+              </Form>
               <MenuList>
-                {suggestedResponses.map((suggestedResponse: string) => (
-                  <MenuItem key={suggestedResponse}>
-                    <Box w="100%" mt="2" mb="2">
-                      {suggestedResponse}
-                    </Box>
-                  </MenuItem>
-                ))}
+                {suggestedResponses &&
+                  suggestedResponses.map((suggestedResponse: string) => (
+                    <MenuItem
+                      key={suggestedResponse}
+                      // onClick={ (e) =>  sendMsg(suggestedResponse)}
+                    >
+                      <Box w="100%" mt="2" mb="2">
+                        {suggestedResponse}
+                      </Box>
+                    </MenuItem>
+                  ))}
               </MenuList>
             </Menu>
             <Input
