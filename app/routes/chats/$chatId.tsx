@@ -207,34 +207,36 @@ export default function ChatDetail() {
       }),
     });
   };
+
   function validateInput(value: string): string {
     // email regex
-    const emailRegex = /^\S+@\S+\.\S+$/;
-
+    const emailRegex = /\S+@\S+\.\S+/;
+  
     // Singapore phone number regex
-    const singaporePhoneRegex = /^(\+65)?[689]\d{7}$/;
-
+    const singaporePhoneRegex = /(\+65)?[689]\d{7}/;
+  
     // credit card regex
-    const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
-
+    const creditCardRegex = /(?:\d[ -]*?){13,16}/;
+  
     // bank details regex
-    const bankDetailsRegex = /(?:\b\d{3}-\d{3}-\d{3}\b|\b\d{9}\b)/;
-
-    // check if the input matches any of the regex
-    if (value.match(emailRegex)) {
+    const bankDetailsRegex = /\d{3}-\d{5}-\d{1}|\d{9}/;
+  
+    // check if the input contains any sensitive information
+    if (emailRegex.test(value)) {
       return "This input contains an email address.";
     }
-    if (value.match(singaporePhoneRegex)) {
+    if (singaporePhoneRegex.test(value)) {
       return "This input contains a Singapore phone number.";
     }
-    if (value.match(creditCardRegex)) {
+    if (creditCardRegex.test(value)) {
       return "This input contains a credit card number.";
     }
-    if (value.match(bankDetailsRegex)) {
+    if (bankDetailsRegex.test(value)) {
       return "This input contains bank details.";
     }
     return "";
   }
+  
   if (messagesGroupError) {
     return (
       <Text color="red">
