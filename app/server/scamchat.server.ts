@@ -12,23 +12,29 @@ const sessionClient = new dialogflow.SessionsClient({
 });
 
 export const retrieveChats = async (username: string) => {
-  console.log(username)
-  const existingSessionsPromise = await fetch(
-    `${process.env.SCAMCHAT_BACKEND}/sessions/${username}`
-  );
+  console.log(username);
+  let existingSessionsPromise;
+  try {
+     existingSessionsPromise = await fetch(
+      `${process.env.SCAMCHAT_BACKEND}/sessions/${username}`
+    );
+  } catch (err) {
+    console.log(err);
+    return
+  }
   const existingSessions: Session[] = await existingSessionsPromise.json();
-  console.log(existingSessions)
+  console.log(existingSessions);
 
   const chatUrls: string[] = existingSessions.map(
     ({ phone_num, chat_id }) =>
       `${process.env.SCAMCHAT_BACKEND}/chat/get_by_id/${phone_num}/${chat_id}`
   );
-  console.log(chatUrls)
+  console.log(chatUrls);
 
   const chatPromises = await Promise.allSettled(
     chatUrls.map((url) => fetch(url))
   );
-  console.log(chatPromises)
+  console.log(chatPromises);
 
   const chats: Chat[] = [];
   for (const chatPromise of chatPromises) {
@@ -37,7 +43,7 @@ export const retrieveChats = async (username: string) => {
     }
     //TODO: error handling
   }
-  console.log(chats)
+  console.log(chats);
   return chats;
 };
 
@@ -62,9 +68,10 @@ export const fetchSuggestedResponses = async (input: string) => {
   };
 
   const responses = await sessionClient.detectIntent(request);
-  console.log(responses)
+  console.log(responses);
   const result = responses[0].queryResult;
-  if(result.fulfillmentText === "No Results") return ["oh i see", "ok", "i see", "interesting","yes"]
+  if (result.fulfillmentText === "No Results")
+    return ["oh i see", "ok", "i see", "interesting", "yes"];
   return JSON.parse(result.fulfillmentText);
 };
 
