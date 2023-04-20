@@ -156,14 +156,14 @@ export default function ChatDetail() {
       const data = JSON.parse(event.data) as Message;
       console.log(data);
       data.text = data.text.replace(urlRegex, (url) => {
-        fetch(`${inspect_backend}/api/linkinspect`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inspectURL: url }),
-        })
+        // fetch(`${inspect_backend}/api/linkinspect`, {
+        //   method: "POST",
+        //   headers: {
+        //     Accept: "application/json",
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ inspectURL: url }),
+        // })
         const encodedUrl = encodeURIComponent(url);
         const inspectUrl = "/inspect/" + encodedUrl;
         return `<a 
