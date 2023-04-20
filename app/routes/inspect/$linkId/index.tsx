@@ -153,9 +153,7 @@ export const action: ActionFunction = async ({ request }) => {
   const evidences = formData.getAll("evidenceCheckbox").toString();
 
   // dest addr - supposed to be registrar email but for testing/demo, use personal email
-  if (registrarEmail) {
-    sendTakedownEmail(link, "zxnlee00@gmail.com", evidences); // 2nd parameter should be registrar contact?
-  }
+  sendTakedownEmail(link, "scamsword@gmail.com", evidences); // 2nd parameter should be registrar contact?
 
   return null;
 };
@@ -345,29 +343,18 @@ export default function InspectSlug() {
                       type="submit"
                       colorScheme="green"
                       mr={3}
-                      onClick={() =>
-                        inspectedLink!.registrar_abuse_contact
-                          ? toast({
-                              title: "Report Submitted.",
-                              description: `We've reported the malicious URL ${
-                                inspectedLink!.original_url
-                              } to the registrar at ${
-                                inspectedLink!.registrar_abuse_contact
-                              }.`,
-                              status: "success",
-                              duration: 9000,
-                              isClosable: true,
-                            })
-                          : toast({
-                              title: "Report Failed.",
-                              description: `The malicious URL ${
-                                inspectedLink!.original_url
-                              }'s registrar was not found, hence the request for takedown was not sent.`,
-                              status: "error",
-                              duration: 9000,
-                              isClosable: true,
-                            })
-                      }
+                      onClick={() => {
+                        onClose();
+                        toast({
+                          title: "Report Submitted.",
+                          description: `We've reported the malicious URL ${
+                            inspectedLink!.original_url
+                          }.`,
+                          status: "success",
+                          duration: 9000,
+                          isClosable: true,
+                        });
+                      }}
                     >
                       Submit
                     </Button>
