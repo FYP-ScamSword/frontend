@@ -29,6 +29,7 @@ import {
   getInspectedLink,
   getReport,
   getScreenshot,
+  inspectLink,
   sendTakedownEmail,
   updateScore,
 } from "~/server/inspect.server";
@@ -51,6 +52,8 @@ export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.linkId, `params.linkId is required`);
 
   let decodedLink = decodeURIComponent(params.linkId);
+  await inspectLink(decodedLink! as string);
+
   let dom,
     screenshot,
     inspectedLink,

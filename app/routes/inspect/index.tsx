@@ -40,7 +40,6 @@ export const action: ActionFunction = async ({ request }) => {
       },
     };
   }
-  inspectLink(link! as string);
 
   return redirect(`/inspect/${encodeURIComponent(link as string)}`);
 };
