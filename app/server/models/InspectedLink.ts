@@ -6,7 +6,7 @@ export default class InspectedLink {
     public report: string,
     public image: string,
     public domain_age: Number,
-    public flag_score: Number,
+    public flag_score: number,
     public registrar_abuse_contact: string,
     public to_flag: Boolean,
     public num_flags: Number,

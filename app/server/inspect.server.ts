@@ -50,6 +50,13 @@ const getLinkStatus = (decodedLink: string) => {
   return collections.inspectedLinks?.findOne(query) as unknown as InspectedLink;
 };
 
+export const updateScore = (decodedLink: string,flag_score: number) =>{
+  collections.inspectedLinks?.updateOne(
+  { original_url: decodedLink},
+  { $set: { flag_score: flag_score } }
+);
+}
+
 export const getDom = (processedUrl: string) => {
   return fetch(
     `${process.env.SCREENSHOT_BACKEND}/scrape?url=${processedUrl}`
