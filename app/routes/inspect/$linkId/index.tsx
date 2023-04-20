@@ -30,6 +30,7 @@ import {
   getReport,
   getScreenshot,
   sendTakedownEmail,
+  updateScore,
 } from "~/server/inspect.server";
 import { useLoaderData, useParams, Form } from "@remix-run/react";
 import { json, type LoaderArgs } from "@remix-run/node";
@@ -50,14 +51,18 @@ export const loader = async ({ params }: LoaderArgs) => {
   invariant(params.linkId, `params.linkId is required`);
 
   let decodedLink = decodeURIComponent(params.linkId);
-  let dom, screenshot, inspectedLink, inspectionReport;
+  let dom,
+    screenshot,
+    inspectedLink,
+    inspectionReport,
+    lowestFaviconScore = Infinity;
   let domErr, screenshotErr, inspectedLinkErr, inspectionReportErr;
   const promises = [
     connectToDatabase(),
     getScreenshot(decodedLink),
     getDom(decodedLink),
   ];
-  console.log(1)
+  console.log(1);
   const [, screenshotRes, domRes] = await Promise.allSettled(promises);
   if (screenshotRes.status === "fulfilled") {
     screenshot = screenshotRes.value;
@@ -68,6 +73,7 @@ export const loader = async ({ params }: LoaderArgs) => {
     dom = domRes.value as Dom;
     if (dom && dom.similar_favicon) {
       for (let favicon of dom.similar_favicon.similar_favicons) {
+        lowestFaviconScore = Math.min(lowestFaviconScore, favicon.distance);
         favicon.url = getFavicon(favicon.filename);
         console.log("oi" + favicon.url);
       }
@@ -75,7 +81,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   } else {
     domErr = domRes.reason;
   }
-  console.log(2)
+  console.log(2);
 
   try {
     while (
@@ -91,11 +97,12 @@ export const loader = async ({ params }: LoaderArgs) => {
   } catch (error) {
     inspectedLinkErr = error;
   }
-  console.log(3)
+  console.log(3);
 
   if (inspectedLink && inspectedLink.status === "error") {
     inspectedLinkErr = { error: "error" };
     inspectedLink = undefined;
+
     return json({
       inspectedLink,
       inspectedLinkErr,
@@ -107,16 +114,20 @@ export const loader = async ({ params }: LoaderArgs) => {
       domErr,
     });
   }
-  console.log(4)
+  console.log(4);
 
   try {
+    if (inspectedLink && lowestFaviconScore <= 0.3) {
+      inspectedLink.flag_score += 2 * (1 - lowestFaviconScore);
+      updateScore(decodedLink, inspectedLink.flag_score);
+    }
     inspectionReport = await getReport(
       (inspectedLink as InspectedLink).report as string
     );
   } catch (error) {
     inspectionReportErr = error;
   }
-  console.log(5)
+  console.log(5);
 
   return json({
     inspectedLink,
